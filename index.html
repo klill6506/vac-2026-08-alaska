@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alaska 2026 — Ken & Georgianna</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<!--
+  =============================================================
+  VACATION TRACKER — Ken's reusable template
+  =============================================================
+  HOW TO USE THIS AS A TEMPLATE FOR FUTURE YEARS:
+    1. Copy this file. Rename to e.g. "2027-trip.html".
+    2. Edit the data block in <script id="trip-data" type="application/json">
+       at the bottom of <body>. Change destination, dates, flights, hotels,
+       and activities.
+    3. The page renders entirely from that JSON block — no other HTML edits
+       required. The CSS/layout stay the same year to year.
+    4. Status values for each item: "todo" | "booked" | "confirmed" | "complete"
+    5. Save the file. Open in a browser. Print to PDF if you want a hard copy.
+  =============================================================
+-->
+<style>
+  :root {
+    --ink: #0a2540;
+    --ink-soft: #334e68;
+    --muted: #6b7c93;
+    --line: #e3e8ee;
+    --bg: #f6f8fb;
+    --card: #ffffff;
+    --accent: #1e6091;
+    --glacier: #4a9ec7;
+    --gold: #c9a14a;
+    --green: #2f8f5a;
+    --amber: #d97706;
+    --red: #c0392b;
+    --shadow: 0 1px 2px rgba(10, 37, 64, 0.06), 0 8px 24px rgba(10, 37, 64, 0.04);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* Header */
+  header.trip-header {
+    background: linear-gradient(135deg, #0a2540 0%, #1e6091 60%, #4a9ec7 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 36px 40px;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow);
+  }
+  .trip-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 12px;
+  }
+  .trip-title {
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+  .trip-subtitle {
+    font-size: 17px;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 24px;
+  }
+  .countdown-row {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.18);
+  }
+  .countdown-item .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 4px;
+  }
+  .countdown-item .value {
+    font-size: 22px;
+    font-weight: 600;
+  }
+
+  /* Sections */
+  section { margin-bottom: 40px; }
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .section-summary {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* Cards */
+  .cards { display: grid; gap: 14px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+  }
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 8px;
+  }
+  .card-name {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .card-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px 24px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+  }
+  .field-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .field-value {
+    font-size: 14px;
+    color: var(--ink-soft);
+    word-break: break-word;
+  }
+  .field-value.empty {
+    color: #cbd5e0;
+    font-style: italic;
+  }
+  .field-value a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
+  }
+  .field-value a:hover { border-bottom-color: var(--accent); }
+  .notes {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  /* Status pills */
+  .pill {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  .pill-todo { background: #fff1e8; color: var(--amber); border: 1px solid #ffd9c2; }
+  .pill-pending { background: #ede9fe; color: #6d28d9; border: 1px solid #c4b5fd; }
+  .pill-booked { background: #fef9d8; color: #b08400; border: 1px solid #f5e08c; }
+  .pill-confirmed { background: #e3f5ea; color: var(--green); border: 1px solid #b8e0c8; }
+  .pill-cancelled { background: #fef2f2; color: var(--red); border: 1px solid #fecaca; text-decoration: line-through; }
+  .pill-complete { background: #e7eef5; color: var(--ink-soft); border: 1px solid #c8d4e2; }
+
+  /* Itinerary */
+  .day-row {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 20px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .day-row:last-child { border-bottom: none; }
+  .day-date {
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .day-date .dow {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+  }
+  .day-plan { color: var(--ink-soft); }
+  .day-plan strong { color: var(--ink); }
+
+  /* Budget */
+  table.budget {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  table.budget th, table.budget td {
+    padding: 12px 18px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+  }
+  table.budget th {
+    background: #f0f4fa;
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  table.budget td.amount { text-align: right; font-variant-numeric: tabular-nums; }
+  table.budget tr:last-child td { border-bottom: none; }
+  table.budget tr.total td {
+    font-weight: 700;
+    background: #f9fbfd;
+    color: var(--ink);
+  }
+  .budget-note {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  /* Print */
+  @media print {
+    body { background: white; font-size: 11pt; }
+    .container { padding: 0; max-width: none; }
+    header.trip-header { box-shadow: none; }
+    .card { break-inside: avoid; box-shadow: none; }
+    section { break-inside: auto; }
+    .day-row { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header class="trip-header">
+  <div class="trip-eyebrow" id="trip-eyebrow">Trip eyebrow</div>
+  <h1 class="trip-title" id="trip-title">Trip title</h1>
+  <p class="trip-subtitle" id="trip-subtitle">Trip subtitle</p>
+  <div class="countdown-row">
+    <div class="countdown-item">
+      <div class="label">Departure</div>
+      <div class="value" id="countdown-depart">—</div>
+    </div>
+    <div class="countdown-item">
+      <div class="label">Return</div>
+      <div class="value" id="countdown-return">—</div>
+    </div>
+    <div class="countdown-item">
+      <div class="label">Length</div>
+      <div class="value" id="countdown-length">—</div>
+    </div>
+    <div class="countdown-item">
+      <div class="label">Days Until</div>
+      <div class="value" id="countdown-days">—</div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="section-header">
+    <div class="section-title">Reminders</div>
+    <div class="section-summary" id="deadlines-summary"></div>
+  </div>
+  <div id="deadlines-list" style="background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); overflow: hidden;"></div>
+</section>
+
+<section>
+  <div class="section-header">
+    <div class="section-title">Daily Itinerary</div>
+  </div>
+  <div id="itinerary-list"></div>
+</section>
+
+<section>
+  <div class="section-header">
+    <div class="section-title">Route Map</div>
+    <div class="section-summary">Tap a marker for details</div>
+  </div>
+  <div id="trip-map" style="height: 460px; border-radius: 10px; box-shadow: var(--shadow); border: 1px solid var(--line);"></div>
+  <div style="margin-top: 10px; font-size: 12px; color: var(--muted); display: flex; gap: 18px; flex-wrap: wrap;">
+    <span><span style="display:inline-block; width: 18px; height: 3px; background: #c0392b; vertical-align: middle; margin-right: 4px;"></span>Flights</span>
+    <span><span style="display:inline-block; width: 18px; height: 3px; background: #1e6091; vertical-align: middle; margin-right: 4px;"></span>Rail</span>
+    <span><span style="display:inline-block; width: 18px; height: 3px; background: #2f8f5a; vertical-align: middle; margin-right: 4px; border-top: 1px dashed #2f8f5a;"></span>Day trip (boat/plane)</span>
+  </div>
+</section>
+
+<section>
+  <div class="section-header">
+    <div class="section-title">Flights</div>
+    <div class="section-summary" id="flights-summary"></div>
+  </div>
+  <div class="cards" id="flights-list"></div>
+</section>
+
+<section>
+  <div class="section-header">
+    <div class="section-title">Hotels</div>
+    <div class="section-summary" id="hotels-summary"></div>
+  </div>
+  <div class="cards" id="hotels-list"></div>
+</section>
+
+<section>
+  <div class="section-header">
+    <div class="section-title">Activities & Outings</div>
+    <div class="section-summary" id="activities-summary"></div>
+  </div>
+  <div class="cards" id="activities-list"></div>
+</section>
+
+<section>
+  <div class="section-header">
+    <div class="section-title">Budget</div>
+    <div class="section-summary" id="budget-status"></div>
+  </div>
+  <div id="budget-summary" style="margin-bottom: 18px;"></div>
+  <table class="budget" id="budget-table"></table>
+  <div class="budget-note" id="budget-note"></div>
+</section>
+
+<footer>
+  Vacation tracker template — edit the JSON below to reuse for future trips. Last updated <span id="last-updated"></span>.
+</footer>
+
+</div>
+
+<!--
+  =============================================================
+  TRIP DATA — edit this block to update the page
+  =============================================================
+-->
+<script id="trip-data" type="application/json">
+{
+  "eyebrow": "2026 Vacation • Birthday Trip",
+  "title": "Alaska — Juneau & Denali",
+  "subtitle": "Ken & Georgianna • Whales, bears, glaciers, and the deep interior",
+  "depart": "2026-08-09",
+  "return": "2026-08-19",
+  "budgetCeiling": 15000,
+  "flights": [
+    {
+      "name": "ATL → SEA → JNU (Outbound)",
+      "subtitle": "Delta — Comfort+ award (open-jaw with return)",
+      "status": "confirmed",
+      "fields": {
+        "Flight 1": "DL 0481 (Boeing 737-900): ATL 1:45 PM → SEA 4:00 PM, seats 13E/13F",
+        "Connection": "50 min at SEA",
+        "Flight 2": "DL 2169 (Boeing 737-800): SEA 4:50 PM → JNU 6:26 PM, seats 15A/15B",
+        "Date": "Sun, Aug 9, 2026",
+        "Class": "Delta Comfort+ (SW fare class)",
+        "eTicket — Ken": "0062431436335",
+        "eTicket — Georgianna": "0062431436336",
+        "Booking link": "https://www.delta.com/my-trips"
+      },
+      "notes": "Tight 50-min connection at SEA but same airline, same terminal. Gold Medallion Sky Priority screening helps."
+    },
+    {
+      "name": "JNU → ANC (Intra-Alaska)",
+      "subtitle": "Alaska Airlines 1539 — First Class, nonstop",
+      "status": "confirmed",
+      "fields": {
+        "Flight": "Alaska 1539 (nonstop, 568 mi, ~1h 46m)",
+        "Date": "Thu, Aug 13, 2026",
+        "Depart": "JNU 7:15 PM",
+        "Arrive": "ANC 9:01 PM",
+        "Class": "First Class (D)",
+        "Seats": "2D (Ken) / 2F (Georgianna)",
+        "Confirmation #": "GFXHIT",
+        "Check-in": "Alaska Airlines (alaskaair.com)",
+        "Booking link": "https://www.alaskaair.com/"
+      },
+      "notes": "Not a Delta partnership — no SkyMiles earned, but Alaska Mileage Plan miles available if you create an account. Sheraton Anchorage check-in around 9:45 PM."
+    },
+    {
+      "name": "ANC → ATL (Return)",
+      "subtitle": "Delta One Classic — overnight nonstop, lie-flat",
+      "status": "confirmed",
+      "fields": {
+        "Flight": "DL 0416 (Boeing 767-300)",
+        "Depart": "Wed, Aug 19 at 8:24 PM (ANC South Terminal)",
+        "Arrive": "Thu, Aug 20 at 7:14 AM (ATL Domestic Term-South)",
+        "Duration": "6h 50m nonstop",
+        "Class": "Delta One Classic (Z fare class)",
+        "Seats": "5C (Ken) / 5B (Georgianna) — paired lie-flat",
+        "eTicket — Ken": "0062431535234",
+        "eTicket — Georgianna": "0062431535235",
+        "Perks": "Sky Club ANC + ATL, Zone 1 boarding, lounge dining",
+        "Booking link": "https://www.delta.com/my-trips"
+      },
+      "notes": "Overnight red-eye after the trip — lie-flat seats let you sleep across the country. Plenty of time on Aug 19 in Anchorage before the 8:24 PM departure."
+    }
+  ],
+  "hotels": [
+    {
+      "name": "Four Points by Sheraton Juneau",
+      "subtitle": "Marriott Bonvoy • 51 Egan Drive, Juneau",
+      "status": "confirmed",
+      "priority": "ACTION: Reservation shows 1 Adult — call 800-228-9290 or update in Bonvoy app to add Georgianna",
+      "fields": {
+        "Confirmation #": "70293902",
+        "Check-in": "Sun, Aug 9, 2026",
+        "Check-out": "Fri, Aug 14, 2026 (5 nights — Bonvoy 5th-night-free)",
+        "Room": "Guest Room • 1 King • Mountain View",
+        "Cost": "Bonvoy points (5th night free benefit applied)",
+        "Cancel by": "Fri Aug 7, 2026 at 11:59 PM local (2 days before)",
+        "Phone": "907-586-6900",
+        "Booking link": "https://www.marriott.com/en-us/hotels/jnufp-four-points-juneau/"
+      },
+      "notes": "Actual stay is 4 nights (Aug 9-13). The 5th night (Aug 13-14) is functionally a late-checkout/flight-delay buffer — Alaska 1539 doesn't leave JNU until 7:15 PM Aug 13. Standard checkout 11 AM, but with the booked night you can use the room all day Aug 13. Downtown waterfront. South-facing = harbor view (you've got mountain view)."
+    },
+    {
+      "name": "Anchorage Marriott Downtown (1st stay)",
+      "subtitle": "Marriott Bonvoy • Tallest hotel in Anchorage",
+      "status": "confirmed",
+      "fields": {
+        "Confirmation #": "71989845",
+        "Check-in": "Thu, Aug 13, 2026",
+        "Check-out": "Fri, Aug 14, 2026 (1 night)",
+        "Cost": "65,000 Bonvoy points (plus $325 to buy needed points)",
+        "Address": "820 W 7th Ave, Anchorage",
+        "Phone": "907-279-8000",
+        "Booking link": "https://www.marriott.com/hotels/travel/ancdt-marriott-anchorage-downtown"
+      },
+      "notes": "Layover night before the GoldStar train Aug 14. Train depot is ~1 mile from hotel. Platinum Elite status applies — free breakfast or F&B credit, possible room upgrade. Request a high floor with west-facing Cook Inlet view."
+    },
+    {
+      "name": "Denali Bluffs Hotel",
+      "subtitle": "Same operator as Grande Denali, base of the hill • Parks Hwy, Denali NP",
+      "status": "confirmed",
+      "fields": {
+        "Confirmation #": "HAS87JEDY",
+        "Check-in": "Fri, Aug 14, 2026 (4:00 PM)",
+        "Check-out": "Mon, Aug 17, 2026 (10:00 AM) — 3 nights",
+        "Room": "1 Queen & 1 Double Bed",
+        "Rate": "$629.59/night (incl. tax)",
+        "NPR service fee": "$188.88 (non-refundable, already charged)",
+        "Total paid": "$2,077.65",
+        "Front desk": "24 hours",
+        "Address": "P.O. Box 8 / 238 George Parks Hwy, Denali NP, AK 99755",
+        "Cancel/change": "1-866-875-8456 option 2",
+        "Booking link": "https://www.denalialaska.com/denali-bluffs-hotel/"
+      },
+      "notes": "NPR switched from Grande Denali (no availability) to sister property Denali Bluffs — same operator, same area, slightly cheaper. Free shuttle from the train depot to the hotel — look for the Denali Bluffs/Grande Denali shuttle when you arrive Aug 14 ~3:40 PM. NOT a Bonvoy property. Rail transfer fee was NOT added to this booking — if you want them to handle baggage from the depot ($10/pax) or formal one-way transfer ($18/pax), add it on arrival or call ahead."
+    },
+    {
+      "name": "Hotel Captain Cook (2nd Anchorage stay)",
+      "subtitle": "Iconic independent luxury hotel • Junior Suite • Downtown",
+      "status": "confirmed",
+      "priority": "Verify reservation with hotel direct (907-931-4421) a few days before — third-party booking, confirm Junior Suite room type",
+      "fields": {
+        "Booking #": "9092917186777 (via HotelsOne)",
+        "Check-in": "Mon, Aug 17, 2026 (from 4:00 PM)",
+        "Check-out": "Wed, Aug 19, 2026 (by 11:00 AM)",
+        "Room": "Junior Suite",
+        "Total paid": "$1,637.46 (prepaid, likely non-refundable)",
+        "Address": "939 W 5th Ave, Anchorage",
+        "Hotel direct": "907-931-4421",
+        "HotelsOne service": "855-213-5609 (for changes/cancellation)",
+        "Booking link": "https://www.captaincook.com/"
+      },
+      "notes": "ON-SITE: Crow's Nest fine dining (top floor, panoramic views — make Aug 18 dinner reservation 907-276-6000), Whale's Tail lounge, Pantry casual, Fletcher's Irish pub. REQUEST AT CHECK-IN: late checkout for Aug 19 (DL 0416 leaves at 8:24 PM, so 2-4 PM checkout is ideal). No chain loyalty status applies — independent hotel."
+    }
+  ],
+  "activities": [
+    {
+      "name": "Harv's Original 6-Passenger Whale Watch",
+      "subtitle": "Harv & Marv's / Alaska Galore Tours • Auke Bay",
+      "status": "confirmed",
+      "fields": {
+        "Date": "Mon, Aug 10, 2026 • 7:30 AM – 11:30 AM (4 hrs)",
+        "Operator": "Harv & Marv's Outback Alaska",
+        "Confirmation #": "351420672",
+        "Cost (paid)": "$441.00",
+        "Meet at": "Statter Harbor, 11520 Auke Bay Harbor Rd, Juneau",
+        "Exact spot": "Top of gangway in front of gray building w/ whale tail replica, under covered area",
+        "Parking": "Statter Harbor requires a parking pass — buy from kiosk on arrival",
+        "Dispatch phone": "907-209-8686 (call if you can't find crew)",
+        "Change/cancel": "877-794-2537",
+        "Booking link": "https://www.harvandmarvs-juneau-whale-watching.com/"
+      },
+      "notes": "INCLUDED: light snacks, water, sodas. You can pack your own snack/lunch if you want. Be at the meeting point 15 min early. Self-transport (no shuttle from downtown). Same general area as the Waterfall Creek floatplane base — Auke Bay is ~10 miles NW of downtown Juneau. CANCEL: 30+ days out (by Jul 11) = full refund minus $50. 15-29 days = 50% refund. Inside 14 days = no refund (except weather/illness)."
+    },
+    {
+      "name": "Waterfall Creek Brown Bear Viewing",
+      "subtitle": "Chichagof Island • 30-min floatplane from Juneau",
+      "status": "confirmed",
+      "fields": {
+        "Date": "Tue, Aug 11, 2026 • 7:30 AM – 1:30 PM (6 hrs)",
+        "Operator": "Above & Beyond Alaska",
+        "Confirmation #": "351418378",
+        "Cost (paid)": "$2,096.68",
+        "Pickup": "Pavitts Health & Fitness Auke Bay — 10004 Glacier Hwy, Juneau (park in back of lot, be ready at 7:30 AM)",
+        "Office": "490 S Franklin St, Juneau",
+        "Weight limit": "250 lbs per person (floatplane restriction)",
+        "Min group": "4 guests required — could be cancelled if not met",
+        "Cancellation": "Full refund if cancelled 72+ hrs before; $50/pax deposit non-refundable",
+        "Booking link": "https://fareharbor.com/embeds/book/beyondak/items/364460/calendar/2026/08/"
+      },
+      "notes": "INCLUDED: pro guide, van + floatplane transport, Forest Service permits, rain gear (jacket/boots/pants), snacks, water bottle. BRING: polyester/synthetic layers, sunglasses, warm hat & gloves, thick socks, camera/binoculars, cash for guide gratuity. ON SITE: no dock, no bathrooms, no shelter, no cell service — go before you board. Operates in all weather barring safety issues. Sample itinerary: 1 hr van → 30 min floatplane → 3 hrs bears → 30 min floatplane → 1 hr van back."
+    },
+    {
+      "name": "Dog Sledding on Mendenhall Glacier",
+      "subtitle": "TEMSCO Helicopters • Juneau Icefield dog camp",
+      "status": "confirmed",
+      "fields": {
+        "Confirmation #": "351540985",
+        "Date": "Wed, Aug 12, 2026 • 2:45 PM – 5:30 PM (2h 45m)",
+        "Cost (paid)": "$1,481.88 ($740.94/pax)",
+        "Pickup": "Four Points by Sheraton lobby — be in lobby/outside by 2:30 PM (15 min prior to 2:45 pickup). Look for TEMSCO vehicle.",
+        "Pickup address": "51 Egan Dr, Juneau",
+        "TEMSCO phone": "907-789-9501",
+        "Email": "info@temscoair.com",
+        "Booking link": "https://temscoair.com/juneau-helicopter-tours/dog-sled/"
+      },
+      "notes": "WEAR: warm layers, hat, gloves, sunglasses, raincoat, regular walking shoes (glacier boots provided over your shoes). Glacier is 10°F+ cooler than town. PROHIBITED: bags/purses/backpacks (lockers provided), selfie sticks, GoPro sticks, iPads/tablets, drones. Cameras OK. WEIGHT SURCHARGE: $150 added at booking for any pax 250 lbs+ (incl. shoes/clothing). ACTIVITY: moderate — 18\" step in/out of helicopter, 100 ft walk to camp. If TEMSCO cancels for weather, full refund."
+    },
+    {
+      "name": "Alaska Railroad GoldStar — ANC → Denali",
+      "subtitle": "Denali Star • glass-domed cars",
+      "status": "confirmed",
+      "fields": {
+        "Date": "Fri, Aug 14, 2026",
+        "Depart": "ANC 8:20 AM",
+        "Arrive": "Denali 3:40 PM",
+        "Operator": "Alaska Railroad",
+        "Confirmation #": "WRR788421",
+        "Cost (paid)": "$1,598.00 round-trip both legs (this same conf covers Aug 17 return)",
+        "Check-in": "1 hour prior to departure (7:20 AM)",
+        "Change/cancel": "800-544-0552 or reservations@akrr.com",
+        "Booking link": "https://www.alaskarailroad.com/ride-a-train/availability-calendar"
+      },
+      "notes": "GoldStar = glass-domed upper level, full dining room, 2 complimentary drinks/pax, outdoor viewing platform. BRING: photo ID required (gov-issued for 18+). BAGGAGE: 2 checked + 1 carry-on, max 50 lbs each. No cash for food onboard — card only."
+    },
+    {
+      "name": "Tundra Wilderness Tour (Denali bus)",
+      "subtitle": "Narrated bus tour to Mile 43 • hotel pickup",
+      "status": "confirmed",
+      "fields": {
+        "Itinerary #": "30002M842",
+        "Reservation #": "3F018L",
+        "Date": "Sat, Aug 15, 2026 • 1:00 PM – 6:30 PM (5.5 hrs)",
+        "Pickup": "Denali Bluffs Hotel lobby at 1:00 PM (be ready 20 min prior = 12:40 PM)",
+        "Cost (paid)": "$289.50 (incl. $15/pax NPS entrance fee)",
+        "Operator": "Doyon/ARAMARK Joint Venture",
+        "Phone": "800-622-7275",
+        "Booking link": "https://www.reservedenali.com/"
+      },
+      "notes": "2 DAYS BEFORE TOUR (Aug 13): visit ReserveDenali.com → 'Retrieve Reservations' to confirm exact departure time and loading location. Park road open to Mile 43 only in 2026 (Pretty Rocks landslide). Expect bears, moose, caribou, Dall sheep, possibly wolves. No smoking/alcohol on the bus."
+    },
+    {
+      "name": "Kenai Fjords NP Cruise (Major Marine Tours)",
+      "subtitle": "Seward — 6-hr ranger-narrated cruise",
+      "status": "todo",
+      "priority": "BOOK TOMORROW — Aug 18 full-day cruise. Confirm puffins + sea otters on this tour (they should be).",
+      "fields": {
+        "Date target": "Tue, Aug 18, 2026",
+        "Tour": "Kenai Fjords National Park Tour (6 hrs, ranger narrated, lunch incl.)",
+        "Operator": "Major Marine Tours",
+        "Phone": "800-764-7300",
+        "Departure": "Typically 11:30 AM from Seward (~3 hr drive from Anchorage)",
+        "Estimated cost": "~$220/pax = ~$440 for two",
+        "Need": "Rental car for the day (~$110-130 R/T) OR Park Connection Motorcoach (~$250 R/T)",
+        "Booking link": "https://majormarine.com/"
+      },
+      "notes": "Wildlife to confirm before booking: humpback whales, orcas, sea lions, sea otters, puffins (horned & tufted), dall's porpoises. Tidewater glaciers — Holgate Glacier calving up close. This is the marine glacier + fjord experience you haven't had elsewhere on the trip. Long day (12+ hrs) but Aug 17 train day = built-in rest day before."
+    },
+    {
+      "name": "Denali Flightseeing + Glacier Landing (Fly Denali)",
+      "subtitle": "Healy River Airport • 12:00 PM wheels-up, hotel pickup",
+      "status": "confirmed",
+      "fields": {
+        "Lookup code": "VG1DMB",
+        "Date": "Sun, Aug 16, 2026 • 12:00 PM wheels-up (3 hr tour total)",
+        "Pickup": "Denali Bluffs Hotel at 11:10 AM (50 min prior)",
+        "Be in lobby by": "11:00 AM (Fly Denali pulls up at 11:10)",
+        "Cost (paid)": "$1,558.00",
+        "Operator": "Fly Denali",
+        "Phone": "907-683-2359",
+        "Email": "info@flydenali.net",
+        "Airport address": "Healy River Airport (HRR), 2.2 miles down Healy Spur Rd",
+        "Manage booking": "https://go.theflybook.com/manage/VG1DMB"
+      },
+      "notes": "WEAR: close-toed shoes (glacier over-boots provided), lightweight jacket, sunglasses, camera. NO BAGS/PURSES on aircraft (FAA — locker at office). NPS PASS: required for glacier landing, BUT Aug 15 Tundra Wilderness Tour includes the $15/pax NPS entrance fee = valid 7-day Denali Park pass. SAVE THE TUNDRA RECEIPT to show Aug 16 — no additional fee needed. CANCEL: $25/seat fee if 72+ hrs before; non-refundable inside 72 hrs; weather cancel = full refund; if Fly Denali can't land on glacier = $50/pax partial refund. PREVIOUS TAT BOOKING (CANCELLED): #351549171, $1,293.14, refund pending."
+    },
+    {
+      "name": "Alaska Railroad GoldStar — Denali → ANC",
+      "subtitle": "Return rail journey",
+      "status": "confirmed",
+      "fields": {
+        "Date": "Mon, Aug 17, 2026",
+        "Depart": "Denali 12:30 PM",
+        "Arrive": "ANC 8:00 PM",
+        "Operator": "Alaska Railroad",
+        "Confirmation #": "WRR788421 (same as outbound)",
+        "Check-in": "1 hour prior to departure (11:30 AM)",
+        "Change/cancel": "800-544-0552 or reservations@akrr.com"
+      },
+      "notes": "Same booking as Aug 14 outbound. Cancellable up to 1 day before travel for 90% refund."
+    }
+  ],
+  "itinerary": [
+    { "date": "2026-08-09", "plan": "<strong>Fly ATL → SEA → JNU.</strong> Arrive Juneau evening. Check into Four Points by Sheraton. Light dinner downtown." },
+    { "date": "2026-08-10", "plan": "<strong>Whale watching 7:30 AM – 11:30 AM</strong> with Harv & Marv's — meet at Statter Harbor (Auke Bay), 6-passenger boat. Booking #351420672. Afternoon: walk Juneau, Red Dog Saloon, dinner at Tracy's King Crab Shack." },
+    { "date": "2026-08-11", "plan": "<strong>Waterfall Creek bear day</strong> with Above & Beyond Alaska — pickup 7:30 AM at Pavitts Health & Fitness Auke Bay, 30-min floatplane to Chichagof Island, 3 hrs with bears, back by 1:30 PM. Booking #351418378." },
+    { "date": "2026-08-12", "plan": "Morning free in Juneau. <strong>2:45 PM TEMSCO pickup at Four Points lobby</strong> (be ready 2:30 PM) for dog sledding on Mendenhall Glacier — helicopter to dog camp, real sled ride, back to hotel by ~5:45 PM. Conf #351540985. Dinner in town after." },
+    { "date": "2026-08-13", "plan": "<strong>Juneau buffer/relaxation day.</strong> Mt. Roberts tram, downtown wandering, lunch, early dinner. <strong>Alaska 1539 JNU → ANC 7:15 PM, arrive 9:01 PM.</strong> Conf #GFXHIT. Anchorage Marriott Downtown check-in ~9:45 PM (Conf #71989845)." },
+    { "date": "2026-08-14", "plan": "<strong>Alaska Railroad GoldStar ANC → Denali</strong> — depart 8:20 AM (check-in 7:20 AM), arrive 3:40 PM. Conf #WRR788421. Look for the Denali Bluffs/Grande Denali shuttle at the train depot. Check-in at Denali Bluffs Hotel (conf #HAS87JEDY). Evening: explore Denali Village." },
+    { "date": "2026-08-15", "plan": "Leisurely morning at Denali Bluffs. <strong>1:00 PM Tundra Wilderness Tour</strong> pickup at hotel lobby (be ready 12:40 PM). Bus into Denali NP to Mile 43, ~5.5 hrs. Back ~6:30 PM. Res #3F018L." },
+    { "date": "2026-08-16", "plan": "Relaxed morning at Denali Bluffs (sleep in, breakfast). <strong>Be in lobby by 11:00 AM</strong> — Fly Denali pickup at 11:10 AM for 12:00 PM wheels-up at Healy River Airport. 100-minute scenic flight with glacier landing on Ruth Glacier. Lookup #VG1DMB. Back at hotel by mid-afternoon, evening free." },
+    { "date": "2026-08-17", "plan": "<strong>GoldStar train Denali → ANC</strong> — depart 12:30 PM (check-in 11:30 AM), arrive 8:00 PM. Conf #WRR788421. Check into Hotel Captain Cook (Junior Suite). Booking #9092917186777." },
+    { "date": "2026-08-18", "plan": "<strong>Kenai Fjords National Park cruise (Major Marine Tours).</strong> 6:30 AM wake, 7:30 AM drive Seward Highway (rental car), 10:30 AM arrive Seward, 11:30 AM - 5:30 PM ranger-narrated cruise (tidewater glaciers, puffins, sea otters, whales, sea lions), drive back to Captain Cook by 8:30 PM. <strong>Late dinner</strong> — consider moving Crow's Nest to Aug 17 evening instead." },
+    { "date": "2026-08-19", "plan": "Full day in Anchorage (museum, last shopping). <strong>DL 0416 ANC → ATL departs 8:24 PM</strong> — Delta One overnight, arrive ATL 7:14 AM Aug 20." }
+  ],
+  "budget": [
+    { "line": "Delta flights (taxes only — open-jaw award)",        "category": "Air",      "estimate": 100,     "actual": 100,     "status": "booked",    "notes": "~120K SkyMiles burned. ATL-JNU Comfort+ outbound, ANC-ATL Delta One return." },
+    { "line": "JNU → ANC intra-Alaska flight (Alaska Airlines, First Class)", "category": "Air", "estimate": 400, "actual": 546.80, "status": "booked",    "notes": "Alaska 1539, Conf #GFXHIT. $273.40/pax in First Class — reasonable on a 1.5 hr hop." },
+    { "line": "Four Points Juneau (5 nights — 4 used, 5th free buffer)", "category": "Hotel", "estimate": 0,   "actual": 0,       "status": "booked",    "notes": "Conf #70293902. Bonvoy points (5th night free benefit). 5th night = late checkout buffer for Aug 13 evening flight. $0 cash." },
+    { "line": "Anchorage Marriott Downtown — Aug 13 (1 night)",      "category": "Hotel",    "estimate": 0,       "actual": 325,     "status": "booked",    "notes": "Conf #71989845. Paid 65K Bonvoy points + $325 cash to buy needed points. Out of points after this." },
+    { "line": "Hotel Captain Cook — Aug 17-19 (2 nights, Junior Suite)", "category": "Hotel", "estimate": 600,     "actual": 1637.46, "status": "booked",    "notes": "Booking #9092917186777 via HotelsOne. Junior Suite. Prepaid, likely non-refundable. Premium splurge to finish the trip — Crow's Nest restaurant on premises." },
+    { "line": "Denali Bluffs Hotel (3 nights)",                      "category": "Hotel",    "estimate": 2272,    "actual": 2077.65, "status": "booked",    "notes": "Conf #HAS87JEDY. NPR switched from Grande Denali to Denali Bluffs (sister property). Includes $188.88 NPR service fee." },
+    { "line": "Denali Bluffs rail transfer + baggage (round trip)",  "category": "Transit",  "estimate": 68,      "actual": null,    "status": "estimated", "notes": "Call NPR (1-866-875-8456 option 2) to add to reservation #HAS87JEDY. $48 transfer + $20 baggage. Shuttle picks up at train depot Aug 14, returns Aug 17." },
+    { "line": "Alaska Railroad GoldStar (round trip, 2 pax)",        "category": "Transit",  "estimate": 1520,    "actual": 1598.00, "status": "booked",    "notes": "Conf #WRR788421. Aug 14 northbound + Aug 17 southbound." },
+    { "line": "Juneau rental car (5 days, optional)",                "category": "Transit",  "estimate": 350,     "actual": null,    "status": "estimated", "notes": "For Auke Bay transit to bear + whale tours" },
+    { "line": "Waterfall Creek bear tour",                           "category": "Activity", "estimate": 2000,    "actual": 2096.68, "status": "booked",    "notes": "Above & Beyond Alaska, booking #351418378" },
+    { "line": "Harv's whale tour (6-pax boat)",                      "category": "Activity", "estimate": 500,     "actual": 441.00,  "status": "booked",    "notes": "Alaska Galore Tours / Harv & Marv's, booking #351420672" },
+    { "line": "TEMSCO helicopter + dog sled on Mendenhall Glacier", "category": "Activity", "estimate": 1400,    "actual": 1481.88, "status": "booked",    "notes": "Conf #351540985. $82 over estimate, basically on budget." },
+    { "line": "Tundra Wilderness Tour (Denali bus)",                 "category": "Activity", "estimate": 320,     "actual": 289.50,  "status": "booked",    "notes": "Itin #30002M842, Res #3F018L. $30.50 under estimate." },
+    { "line": "Denali flightseeing + glacier landing (Fly Denali)",   "category": "Activity", "estimate": 1200, "actual": 1558.00, "status": "booked",    "notes": "Lookup VG1DMB. 12 PM wheels-up Aug 16, hotel pickup. $358 over estimate, BUT saves $200 rental car + no 6-hr drive. TAT refund of $1,293.14 still pending." },
+    { "line": "Meals (11 days × ~$130/day for two)",                 "category": "Food",     "estimate": 1500,    "actual": null,    "status": "estimated", "notes": "Mix of casual and nicer dinners" },
+    { "line": "Kenai Fjords NP Cruise (Major Marine, Aug 18)",       "category": "Activity", "estimate": 440,     "actual": null,    "status": "estimated", "notes": "6-hr ranger-narrated cruise. ~$220/pax." },
+    { "line": "Seward day rental car (Aug 18)",                      "category": "Transit",  "estimate": 130,     "actual": null,    "status": "estimated", "notes": "1-day rental for Anchorage → Seward → Anchorage round trip." },
+    { "line": "Misc (parking, tips, gifts, contingency)",            "category": "Other",    "estimate": 500,     "actual": null,    "status": "estimated", "notes": "Cash buffer" }
+  ],
+  "budgetNote": "Estimate excludes value of Bonvoy points and SkyMiles burned. Budget ceiling: $15,000. Estimate above totals ~$11,930 cash + points; comfortably inside budget with cushion for upgrades or extra excursions.",
+  "deadlines": [
+    { "date": "2026-08-15", "item": "Save NPS pass receipt from Tundra Wilderness Tour", "consequence": "The $15/pax NPS entrance fee is included in the Tundra Wilderness Tour ticket Aug 15 and gives you a 7-day Denali Park pass. SAVE THE RECEIPT/PASS to show Fly Denali on Aug 16 — covers the glacier landing entrance requirement, no additional fee needed." },
+    { "date": "2026-06-05", "item": "Verify TAT refund posted ($1,293.14)", "consequence": "Cancelled TAT booking #351549171 — refund should hit credit card within 5-7 business days. If not posted by Jun 5, call TAT 907-733-2218 or email info@talkeetnaair.com." },
+    { "date": "2026-05-28", "item": "Book Kenai Fjords cruise (Aug 18)", "consequence": "Major Marine Tours' 6-hr Kenai Fjords National Park Tour — 800-764-7300 or majormarine.com. Confirm puffins + sea otters are on the route. ~$220/pax." },
+    { "date": "2026-05-28", "item": "Sketch tentative dinner schedule (11 nights)", "consequence": "Map a tentative dinner spot for each evening of the trip. Locations: Juneau Aug 9-12 (4), Anchorage Aug 13 (1, late), Denali Aug 14-16 (3), Anchorage Aug 17-18 (2). Doesn't need reservations yet — just a working list." },
+    { "date": "2026-08-15", "item": "Confirm Fly Denali hotel pickup", "consequence": "Pickup at Denali Bluffs at 11:10 AM for 12:00 PM Aug 16 flight. Per their confirmation, let them know 24+ hrs ahead that you're at Denali Bluffs — call 907-683-2359 or email info@flydenali.net to confirm." },
+    { "date": "2026-07-01", "item": "Add rail transfer to Denali Bluffs reservation", "consequence": "Call NPR at 1-866-875-8456 option 2 and add round-trip rail transfer ($24/pax) + baggage handling ($10/pax) = $68 to reservation #HAS87JEDY. Shuttle from train depot Aug 14, return Aug 17." },
+    { "date": "2026-07-11", "item": "Harv's whale tour (Aug 10)", "consequence": "Last day for full refund minus $50 service fee. After this, 50% refund only." },
+    { "date": "2026-07-21", "item": "Crow's Nest dinner reservation (Aug 18)", "consequence": "Call Captain Cook at 907-276-6000 to reserve Crow's Nest dinner for Aug 18. Anchorage's top fine-dining experience with panoramic views — walk-ins may not get a table." },
+    { "date": "2026-07-27", "item": "Harv's whale tour (Aug 10)", "consequence": "Last day for 50% refund. After this, no refund (except weather/illness)." },
+    { "date": "2026-07-31", "item": "Denali Bluffs Hotel (Aug 14-17)", "consequence": "Last day to cancel without 100% penalty (14 days prior to arrival, by 3:00 PM local). NPR service fee ($188.88) is always non-refundable." },
+    { "date": "2026-08-07", "item": "Four Points Juneau (Aug 9-14)", "consequence": "Last day to cancel Bonvoy reservation without charge (by 11:59 PM local)." },
+    { "date": "2026-08-08", "item": "Waterfall Creek bear tour (Aug 11)", "consequence": "Last day for refund (72 hrs prior). $100 deposit always non-refundable. After this, fully non-refundable." },
+    { "date": "2026-08-08", "item": "Tundra Wilderness Tour (Aug 15)", "consequence": "Last day for cancellation with $8.75/ticket fee only (7 days prior). After this, non-refundable." },
+    { "date": "2026-08-11", "item": "TEMSCO dog sled (Aug 12)", "consequence": "Last day for cancellation with 10% fee only (by 2:45 PM, 24 hrs prior). After this, nonrefundable unless TEMSCO cancels for weather." },
+    { "date": "2026-08-13", "item": "Tundra Wilderness Tour (Aug 15) — final check", "consequence": "Visit ReserveDenali.com → 'Retrieve Reservations' to confirm exact departure time and pickup location (operator may adjust 48 hrs out)." },
+    { "date": "2026-08-13", "item": "Alaska Railroad northbound (Aug 14)", "consequence": "Last day to cancel for 90% refund. After this, no refund on the outbound leg." },
+    { "date": "2026-08-13", "item": "Verify Captain Cook reservation (Aug 17-19)", "consequence": "Call hotel direct (907-931-4421) to confirm Junior Suite is in their system — third-party HotelsOne booking. Use the free day in Juneau to make the call. Also request late checkout for Aug 19." },
+    { "date": "2026-08-16", "item": "Alaska Railroad southbound (Aug 17)", "consequence": "Last day to cancel for 90% refund. After this, no refund on the return leg." }
+  ]
+}
+</script>
+
+<script>
+  const data = JSON.parse(document.getElementById('trip-data').textContent);
+
+  // Format helpers
+  const dateFmt = (iso) => {
+    const [y, m, d] = iso.split('-').map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    return dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+  };
+  const dateShort = (iso) => {
+    const [y, m, d] = iso.split('-').map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    return {
+      dow: dt.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' }),
+      md: dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })
+    };
+  };
+
+  // Header
+  document.getElementById('trip-eyebrow').textContent = data.eyebrow;
+  document.getElementById('trip-title').textContent = data.title;
+  document.getElementById('trip-subtitle').textContent = data.subtitle;
+  document.getElementById('countdown-depart').textContent = dateFmt(data.depart);
+  document.getElementById('countdown-return').textContent = dateFmt(data.return);
+
+  const depMs = new Date(data.depart + 'T00:00:00').getTime();
+  const retMs = new Date(data.return + 'T00:00:00').getTime();
+  const days = Math.round((retMs - depMs) / 86400000) + 1;
+  document.getElementById('countdown-length').textContent = days + ' days';
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const daysUntil = Math.ceil((depMs - today.getTime()) / 86400000);
+  document.getElementById('countdown-days').textContent =
+    daysUntil > 0 ? daysUntil + ' days' : (daysUntil === 0 ? 'Today!' : 'Trip done');
+
+  // Status pill helper
+  const pill = (status) => {
+    const map = {
+      todo: ['pill-todo', 'To Book'],
+      pending: ['pill-pending', 'Pending'],
+      booked: ['pill-booked', 'Booked'],
+      confirmed: ['pill-confirmed', 'Confirmed'],
+      cancelled: ['pill-cancelled', 'Cancelled'],
+      complete: ['pill-complete', 'Complete']
+    };
+    const [cls, label] = map[status] || map.todo;
+    return `<span class="pill ${cls}">${label}</span>`;
+  };
+
+  // Card renderer
+  const renderCard = (item) => {
+    const fields = Object.entries(item.fields || {}).map(([k, v]) => {
+      if (!v) return `<div><div class="field-label">${k}</div><div class="field-value empty">—</div></div>`;
+      const isUrl = typeof v === 'string' && /^https?:\/\//.test(v);
+      const display = isUrl ? `<a href="${v}" target="_blank" rel="noopener">${v.replace(/^https?:\/\/(www\.)?/, '').slice(0, 40)}${v.length > 47 ? '…' : ''}</a>` : v;
+      return `<div><div class="field-label">${k}</div><div class="field-value">${display}</div></div>`;
+    }).join('');
+    const priority = item.priority ? `<div class="card-sub" style="color: var(--red); font-weight: 600;">⚑ ${item.priority}</div>` : '';
+    const notes = item.notes ? `<div class="notes">${item.notes}</div>` : '';
+    return `
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <div class="card-name">${item.name}</div>
+            ${item.subtitle ? `<div class="card-sub">${item.subtitle}</div>` : ''}
+            ${priority}
+          </div>
+          ${pill(item.status)}
+        </div>
+        <div class="card-grid">${fields}</div>
+        ${notes}
+      </div>
+    `;
+  };
+
+  // Section summary helper
+  const summary = (items) => {
+    const counts = items.reduce((acc, i) => { acc[i.status] = (acc[i.status] || 0) + 1; return acc; }, {});
+    const parts = [];
+    if (counts.confirmed) parts.push(`${counts.confirmed} confirmed`);
+    if (counts.booked) parts.push(`${counts.booked} booked`);
+    if (counts.todo) parts.push(`${counts.todo} to book`);
+    if (counts.complete) parts.push(`${counts.complete} done`);
+    return parts.join(' • ') || `${items.length} items`;
+  };
+
+  // Render flights, hotels, activities
+  document.getElementById('flights-list').innerHTML = data.flights.map(renderCard).join('');
+  document.getElementById('flights-summary').textContent = summary(data.flights);
+  document.getElementById('hotels-list').innerHTML = data.hotels.map(renderCard).join('');
+  document.getElementById('hotels-summary').textContent = summary(data.hotels);
+  document.getElementById('activities-list').innerHTML = data.activities.map(renderCard).join('');
+  document.getElementById('activities-summary').textContent = summary(data.activities);
+
+  // Itinerary
+  document.getElementById('itinerary-list').innerHTML = data.itinerary.map(d => {
+    const ds = dateShort(d.date);
+    return `<div class="day-row"><div class="day-date">${ds.md}<span class="dow">${ds.dow}</span></div><div class="day-plan">${d.plan}</div></div>`;
+  }).join('');
+
+  // ============== BUDGET ==============
+  (function() {
+    const money = (n) => n == null ? '—' : '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    const items = data.budget;
+
+    // Totals
+    let bookedActual = 0, bookedEstimate = 0, unbookedEstimate = 0;
+    items.forEach(i => {
+      if (i.status === 'booked' && i.actual != null) {
+        bookedActual += i.actual;
+        bookedEstimate += i.estimate;
+      } else {
+        unbookedEstimate += i.estimate;
+      }
+    });
+    const projected = bookedActual + unbookedEstimate;
+    const ceiling = data.budgetCeiling;
+    const headroom = ceiling - projected;
+    const pctOfCeiling = Math.min(100, Math.round((projected / ceiling) * 100));
+    const pctBooked = Math.min(100, Math.round((bookedActual / ceiling) * 100));
+
+    // Summary cards
+    document.getElementById('budget-summary').innerHTML = `
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 14px;">
+        <div style="background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; box-shadow: var(--shadow);">
+          <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 4px;">Booked (actual)</div>
+          <div style="font-size: 22px; font-weight: 700; color: var(--green); font-variant-numeric: tabular-nums;">${money(bookedActual)}</div>
+        </div>
+        <div style="background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; box-shadow: var(--shadow);">
+          <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 4px;">Estimated remaining</div>
+          <div style="font-size: 22px; font-weight: 700; color: var(--amber); font-variant-numeric: tabular-nums;">${money(unbookedEstimate)}</div>
+        </div>
+        <div style="background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; box-shadow: var(--shadow);">
+          <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 4px;">Projected total</div>
+          <div style="font-size: 22px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums;">${money(projected)}</div>
+        </div>
+        <div style="background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; box-shadow: var(--shadow);">
+          <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 4px;">Headroom vs $${ceiling.toLocaleString()}</div>
+          <div style="font-size: 22px; font-weight: 700; color: ${headroom < 0 ? 'var(--red)' : 'var(--accent)'}; font-variant-numeric: tabular-nums;">${money(headroom)}</div>
+        </div>
+      </div>
+      <div style="background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; box-shadow: var(--shadow);">
+        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px;">
+          <span>$0</span>
+          <span>Projected ${pctOfCeiling}% of ceiling</span>
+          <span>$${ceiling.toLocaleString()}</span>
+        </div>
+        <div style="height: 14px; background: #f0f4fa; border-radius: 999px; overflow: hidden; position: relative;">
+          <div style="position:absolute; left:0; top:0; bottom:0; width: ${pctBooked}%; background: var(--green);"></div>
+          <div style="position:absolute; left:${pctBooked}%; top:0; bottom:0; width: ${pctOfCeiling - pctBooked}%; background: var(--amber);"></div>
+        </div>
+        <div style="display: flex; gap: 18px; font-size: 11px; color: var(--muted); margin-top: 8px;">
+          <span><span style="display:inline-block; width:10px; height:10px; background: var(--green); border-radius: 2px; vertical-align: middle; margin-right: 4px;"></span>Booked</span>
+          <span><span style="display:inline-block; width:10px; height:10px; background: var(--amber); border-radius: 2px; vertical-align: middle; margin-right: 4px;"></span>Estimated remaining</span>
+          <span><span style="display:inline-block; width:10px; height:10px; background: #f0f4fa; border-radius: 2px; vertical-align: middle; margin-right: 4px;"></span>Headroom</span>
+        </div>
+      </div>
+    `;
+
+    // Status summary
+    const bookedCount = items.filter(i => i.status === 'booked').length;
+    document.getElementById('budget-status').textContent = `${bookedCount} of ${items.length} line items booked`;
+
+    // Group by category for the detail table
+    const categories = ['Air', 'Hotel', 'Transit', 'Activity', 'Food', 'Other'];
+    const grouped = categories.map(cat => ({
+      name: cat,
+      items: items.filter(i => i.category === cat)
+    })).filter(g => g.items.length > 0);
+
+    const statusPill = (status) => {
+      const map = {
+        booked: ['#e3f5ea', 'var(--green)', '#b8e0c8', 'Booked'],
+        estimated: ['#fff1e8', 'var(--amber)', '#ffd9c2', 'Est.'],
+        pending: ['#ede9fe', '#6d28d9', '#c4b5fd', 'Pending']
+      };
+      const [bg, color, border, label] = map[status] || map.estimated;
+      return `<span style="display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; background: ${bg}; color: ${color}; border: 1px solid ${border};">${label}</span>`;
+    };
+
+    let tableRows = '';
+    grouped.forEach(g => {
+      const catEstimate = g.items.reduce((s, i) => s + (i.actual != null ? i.actual : i.estimate), 0);
+      tableRows += `<tr style="background: #f0f4fa;"><td colspan="3" style="font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink);">${g.name}</td><td class="amount" style="font-weight: 600;">${money(catEstimate)}</td></tr>`;
+      g.items.forEach(i => {
+        const display = i.actual != null ? money(i.actual) : money(i.estimate);
+        const noteHtml = i.notes ? `<div style="font-size: 11px; color: var(--muted); margin-top: 2px;">${i.notes}</div>` : '';
+        tableRows += `<tr><td>${i.line}${noteHtml}</td><td>${statusPill(i.status)}</td><td class="amount">${money(i.estimate)}</td><td class="amount" style="font-weight: 600;">${display}</td></tr>`;
+      });
+    });
+    tableRows += `<tr class="total"><td>Projected total (booked + estimated remaining)</td><td></td><td></td><td class="amount">${money(projected)}</td></tr>`;
+    tableRows += `<tr class="total"><td>Budget ceiling</td><td></td><td></td><td class="amount">${money(ceiling)}</td></tr>`;
+    tableRows += `<tr class="total"><td>Headroom</td><td></td><td></td><td class="amount" style="color: ${headroom < 0 ? 'var(--red)' : 'var(--green)'};">${money(headroom)}</td></tr>`;
+
+    document.getElementById('budget-table').innerHTML = `
+      <thead><tr><th>Line item</th><th>Status</th><th style="text-align:right;">Estimate</th><th style="text-align:right;">Current</th></tr></thead>
+      <tbody>${tableRows}</tbody>
+    `;
+    document.getElementById('budget-note').textContent = data.budgetNote;
+  })();
+
+  // Footer last-updated
+  document.getElementById('last-updated').textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  // ============== CANCELLATION DEADLINES ==============
+  (function() {
+    const deadlines = (data.deadlines || []).slice().sort((a, b) => a.date.localeCompare(b.date));
+    if (deadlines.length === 0) {
+      document.getElementById('deadlines-list').innerHTML = '<div style="padding: 20px; color: var(--muted); text-align: center;">No reminders yet.</div>';
+      return;
+    }
+    const todayMs = new Date(); todayMs.setHours(0, 0, 0, 0);
+    let upcoming = 0, passed = 0;
+    const html = deadlines.map((d, i) => {
+      const [y, m, day] = d.date.split('-').map(Number);
+      const ddt = new Date(Date.UTC(y, m - 1, day));
+      const daysOut = Math.ceil((ddt.getTime() - todayMs.getTime()) / 86400000);
+      let status, statusColor, bg;
+      if (daysOut < 0) {
+        status = 'PASSED'; statusColor = '#6b7c93'; bg = '#f6f8fb'; passed++;
+      } else if (daysOut <= 7) {
+        status = `${daysOut} day${daysOut === 1 ? '' : 's'} left`; statusColor = '#c0392b'; bg = '#fdebe8'; upcoming++;
+      } else if (daysOut <= 30) {
+        status = `${daysOut} days left`; statusColor = '#d97706'; bg = '#fff5e8'; upcoming++;
+      } else {
+        status = `${daysOut} days left`; statusColor = '#2f8f5a'; bg = '#ffffff'; upcoming++;
+      }
+      const dateStr = ddt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+      const opacity = daysOut < 0 ? '0.55' : '1';
+      const textDeco = daysOut < 0 ? 'line-through' : 'none';
+      const border = i === deadlines.length - 1 ? '' : 'border-bottom: 1px solid var(--line);';
+      return `
+        <div style="display: grid; grid-template-columns: 140px 1fr 130px; gap: 16px; padding: 14px 18px; ${border} background: ${bg}; opacity: ${opacity};">
+          <div style="font-weight: 600; color: var(--ink); text-decoration: ${textDeco};">${dateStr}</div>
+          <div style="color: var(--ink-soft); text-decoration: ${textDeco};"><strong>${d.item}:</strong> ${d.consequence}</div>
+          <div style="text-align: right; font-weight: 600; font-size: 12px; color: ${statusColor}; text-transform: uppercase; letter-spacing: 0.06em;">${status}</div>
+        </div>`;
+    }).join('');
+    document.getElementById('deadlines-list').innerHTML = html;
+    document.getElementById('deadlines-summary').textContent = `${upcoming} upcoming${passed ? ' • ' + passed + ' passed' : ''}`;
+  })();
+
+  // ============== MAP ==============
+  const stops = [
+    { name: 'Juneau (JNU)',       coords: [58.3019, -134.4197], desc: 'Aug 9–13 • Four Points by Sheraton • whales, bears, glacier', marker: 'main' },
+    { name: 'Waterfall Creek',    coords: [57.8500, -135.3000], desc: 'Aug 11 • Brown bear day trip via floatplane (Chichagof Island)', marker: 'activity' },
+    { name: 'Mendenhall Glacier', coords: [58.4178, -134.5481], desc: 'Aug 12 • Helicopter glacier tour',                  marker: 'activity' },
+    { name: 'Anchorage (ANC)',    coords: [61.2181, -149.9003], desc: 'Aug 13 layover + Aug 17–19 • Sheraton Anchorage',   marker: 'main' },
+    { name: 'Denali NP',          coords: [63.7280, -148.8868], desc: 'Aug 14–17 • Denali Bluffs Hotel • Tundra bus tour', marker: 'main' },
+    { name: 'Talkeetna',          coords: [62.3209, -150.1066], desc: 'Aug 16 • Flightseeing + glacier landing on Mt. Denali', marker: 'activity' }
+  ];
+
+  const routes = [
+    { from: 'Juneau (JNU)',   to: 'Waterfall Creek',    color: '#2f8f5a', mode: 'daytrip', label: 'Floatplane Aug 11' },
+    { from: 'Juneau (JNU)',   to: 'Mendenhall Glacier', color: '#2f8f5a', mode: 'daytrip', label: 'Helicopter Aug 12' },
+    { from: 'Juneau (JNU)',   to: 'Anchorage (ANC)',    color: '#c0392b', mode: 'flight', label: 'Intra-AK Aug 13' },
+    { from: 'Anchorage (ANC)',to: 'Denali NP',          color: '#1e6091', mode: 'rail',   label: 'GoldStar rail Aug 14' },
+    { from: 'Denali NP',      to: 'Talkeetna',          color: '#2f8f5a', mode: 'daytrip', label: 'Flightseeing Aug 16' },
+    { from: 'Denali NP',      to: 'Anchorage (ANC)',    color: '#1e6091', mode: 'rail',   label: 'GoldStar rail Aug 17' }
+  ];
+
+  const map = L.map('trip-map', { scrollWheelZoom: false });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap', maxZoom: 18
+  }).addTo(map);
+
+  // Marker icon style by type
+  const iconFor = (type) => {
+    const colors = { home: '#0a2540', main: '#1e6091', activity: '#2f8f5a', transit: '#6b7c93' };
+    return L.divIcon({
+      className: 'custom-pin',
+      html: `<div style="width:18px;height:18px;border-radius:50%;background:${colors[type]};border:3px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.4);"></div>`,
+      iconSize: [18, 18],
+      iconAnchor: [9, 9]
+    });
+  };
+
+  // Stops
+  const stopByName = {};
+  stops.forEach(s => {
+    stopByName[s.name] = s.coords;
+    L.marker(s.coords, { icon: iconFor(s.marker) })
+      .addTo(map)
+      .bindPopup(`<strong>${s.name}</strong><br>${s.desc}`);
+  });
+
+  // Routes — flights as great-circle approximations (simple curve), rail/daytrip as straight lines
+  const greatCircle = (a, b, segments = 24) => {
+    const lat1 = a[0] * Math.PI/180, lon1 = a[1] * Math.PI/180;
+    const lat2 = b[0] * Math.PI/180, lon2 = b[1] * Math.PI/180;
+    const d = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((lat2-lat1)/2),2) + Math.cos(lat1)*Math.cos(lat2)*Math.pow(Math.sin((lon2-lon1)/2),2)));
+    const pts = [];
+    for (let i = 0; i <= segments; i++) {
+      const f = i / segments;
+      const A = Math.sin((1-f)*d)/Math.sin(d), B = Math.sin(f*d)/Math.sin(d);
+      const x = A*Math.cos(lat1)*Math.cos(lon1) + B*Math.cos(lat2)*Math.cos(lon2);
+      const y = A*Math.cos(lat1)*Math.sin(lon1) + B*Math.cos(lat2)*Math.sin(lon2);
+      const z = A*Math.sin(lat1) + B*Math.sin(lat2);
+      pts.push([Math.atan2(z, Math.sqrt(x*x + y*y)) * 180/Math.PI, Math.atan2(y, x) * 180/Math.PI]);
+    }
+    return pts;
+  };
+
+  routes.forEach(r => {
+    const from = stopByName[r.from], to = stopByName[r.to];
+    if (!from || !to) return;
+    const path = r.mode === 'flight' ? greatCircle(from, to) : [from, to];
+    const dashArray = r.mode === 'daytrip' ? '6,6' : null;
+    L.polyline(path, { color: r.color, weight: 3, opacity: 0.85, dashArray }).addTo(map).bindPopup(r.label);
+  });
+
+  // Fit bounds
+  map.fitBounds(L.latLngBounds(stops.map(s => s.coords)), { padding: [30, 30] });
+</script>
+</body>
+</html>
