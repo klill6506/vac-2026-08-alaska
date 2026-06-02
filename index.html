@@ -6,6 +6,24 @@
 <title>Alaska 2026 — Ken & Georgianna</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+  // Theme init — runs before paint to avoid flash of wrong theme.
+  (function() {
+    try {
+      var saved = localStorage.getItem('theme');
+      var theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    } catch (e) {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+  })();
+  function toggleTheme() {
+    var current = document.documentElement.getAttribute('data-theme') || 'light';
+    var next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
+  }
+</script>
 <!--
   =============================================================
   VACATION TRACKER — Ken's reusable template
@@ -23,12 +41,15 @@
 -->
 <style>
   :root {
+    /* Light theme — default */
     --ink: #0a2540;
     --ink-soft: #334e68;
     --muted: #6b7c93;
     --line: #e3e8ee;
-    --bg: #f6f8fb;
+    --bg: #eef4fa;
     --card: #ffffff;
+    --card-soft: #f0f4fa;
+    --card-softer: #f9fbfd;
     --accent: #1e6091;
     --glacier: #4a9ec7;
     --gold: #c9a14a;
@@ -36,7 +57,56 @@
     --amber: #d97706;
     --red: #c0392b;
     --shadow: 0 1px 2px rgba(10, 37, 64, 0.06), 0 8px 24px rgba(10, 37, 64, 0.04);
+
+    /* Hero — bright Alaska sky over snow */
+    --hero-top: #4f9fd0;
+    --hero-mid: #a4d2eb;
+    --hero-bot: #e8f4fa;
+    --mountain-far: #aab9d2;
+    --mountain-mid: #6982ab;
+    --mountain-near: #2d4870;
+    --snow-tint: rgba(255, 255, 255, 0.92);
+    --hero-text: #ffffff;
+    --hero-text-muted: rgba(255,255,255,0.82);
+    --hero-text-soft: rgba(255,255,255,0.62);
+    --hero-divider: rgba(255,255,255,0.22);
+    --aurora-1: transparent;
+    --aurora-2: transparent;
   }
+
+  [data-theme="dark"] {
+    /* Dark theme — aurora over snowy peaks */
+    --ink: #dde7f4;
+    --ink-soft: #a8b9d0;
+    --muted: #6f8298;
+    --line: #1f2f4a;
+    --bg: #0b1426;
+    --card: #142442;
+    --card-soft: #1a2d4f;
+    --card-softer: #182742;
+    --accent: #6ab8db;
+    --glacier: #88ceea;
+    --gold: #d4b76a;
+    --green: #4cb98a;
+    --amber: #f5a142;
+    --red: #ef5e4e;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.25);
+
+    --hero-top: #040813;
+    --hero-mid: #0a1834;
+    --hero-bot: #1a2d4f;
+    --mountain-far: #1a2c4d;
+    --mountain-mid: #0c1d36;
+    --mountain-near: #04091a;
+    --snow-tint: rgba(195, 220, 240, 0.65);
+    --hero-text: #eaf3ff;
+    --hero-text-muted: rgba(234,243,255,0.72);
+    --hero-text-soft: rgba(234,243,255,0.5);
+    --hero-divider: rgba(234,243,255,0.12);
+    --aurora-1: #2ecc8d;
+    --aurora-2: #5e8bd8;
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
@@ -45,58 +115,147 @@
     font-size: 15px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    transition: background-color 0.25s ease, color 0.25s ease;
   }
   .container {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 40px 24px 80px;
+    padding: 0 24px 80px;
   }
 
-  /* Header */
-  header.trip-header {
-    background: linear-gradient(135deg, #0a2540 0%, #1e6091 60%, #4a9ec7 100%);
-    color: white;
-    border-radius: 16px;
-    padding: 36px 40px;
-    margin-bottom: 32px;
+  /* ============== HERO ============== */
+  .hero {
+    position: relative;
+    margin: 0 -24px 36px;
+    background: linear-gradient(180deg, var(--hero-top) 0%, var(--hero-mid) 55%, var(--hero-bot) 100%);
+    overflow: hidden;
+    color: var(--hero-text);
+    border-radius: 0 0 24px 24px;
     box-shadow: var(--shadow);
   }
-  .trip-eyebrow {
+  .hero-inner {
+    position: relative;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 56px 32px 200px;
+    z-index: 3;
+  }
+  .hero-aurora {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 70%;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  [data-theme="dark"] .hero-aurora {
+    opacity: 0.85;
+    animation: auroraDrift 22s ease-in-out infinite alternate;
+  }
+  @keyframes auroraDrift {
+    0%   { transform: translate3d(-2%, 0, 0) scale(1.02); }
+    100% { transform: translate3d(2%, -2%, 0) scale(1.06); }
+  }
+  .hero-mountains {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 220px;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .hero-eyebrow {
     text-transform: uppercase;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.22em;
     font-size: 11px;
-    color: rgba(255,255,255,0.7);
+    color: var(--hero-text-soft);
+    margin-bottom: 14px;
+  }
+  .hero-title {
+    font-size: 46px;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
     margin-bottom: 12px;
+    text-shadow: 0 2px 16px rgba(0,0,0,0.25);
   }
-  .trip-title {
-    font-size: 38px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-    margin-bottom: 10px;
-  }
-  .trip-subtitle {
+  .hero-subtitle {
     font-size: 17px;
-    color: rgba(255,255,255,0.85);
-    margin-bottom: 24px;
+    color: var(--hero-text-muted);
+    margin-bottom: 28px;
+    max-width: 640px;
   }
   .countdown-row {
     display: flex;
-    gap: 28px;
+    gap: 32px;
     flex-wrap: wrap;
-    padding-top: 20px;
-    border-top: 1px solid rgba(255,255,255,0.18);
+    padding-top: 22px;
+    border-top: 1px solid var(--hero-divider);
   }
   .countdown-item .label {
-    font-size: 11px;
+    font-size: 10px;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: rgba(255,255,255,0.65);
+    letter-spacing: 0.14em;
+    color: var(--hero-text-soft);
     margin-bottom: 4px;
   }
   .countdown-item .value {
     font-size: 22px;
+    font-weight: 700;
+    color: var(--hero-text);
+  }
+
+  /* Theme toggle button */
+  .theme-toggle {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    z-index: 10;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.28);
+    border-radius: 999px;
+    color: var(--hero-text);
+    padding: 8px 14px 8px 12px;
+    font-size: 12px;
     font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    transition: background-color 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+  }
+  .theme-toggle:hover {
+    background: rgba(255,255,255,0.28);
+    border-color: rgba(255,255,255,0.45);
+    transform: translateY(-1px);
+  }
+  [data-theme="dark"] .theme-toggle {
+    background: rgba(20, 36, 66, 0.6);
+    border-color: rgba(136, 206, 234, 0.35);
+  }
+  [data-theme="dark"] .theme-toggle:hover {
+    background: rgba(20, 36, 66, 0.85);
+    border-color: rgba(136, 206, 234, 0.65);
+  }
+  .theme-toggle svg { width: 14px; height: 14px; }
+  .theme-toggle .icon-sun { display: inline-block; }
+  .theme-toggle .icon-moon { display: none; }
+  [data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+  [data-theme="dark"] .theme-toggle .icon-moon { display: inline-block; }
+
+  @media (max-width: 640px) {
+    .hero-inner { padding: 44px 24px 170px; }
+    .hero-title { font-size: 34px; }
+    .hero-mountains { height: 170px; }
+    .countdown-row { gap: 20px; }
+    .theme-toggle { top: 14px; right: 14px; }
   }
 
   /* Sections */
@@ -166,7 +325,8 @@
     word-break: break-word;
   }
   .field-value.empty {
-    color: #cbd5e0;
+    color: var(--muted);
+    opacity: 0.5;
     font-style: italic;
   }
   .field-value a {
@@ -202,6 +362,13 @@
   .pill-confirmed { background: #e3f5ea; color: var(--green); border: 1px solid #b8e0c8; }
   .pill-cancelled { background: #fef2f2; color: var(--red); border: 1px solid #fecaca; text-decoration: line-through; }
   .pill-complete { background: #e7eef5; color: var(--ink-soft); border: 1px solid #c8d4e2; }
+
+  [data-theme="dark"] .pill-todo { background: rgba(245, 161, 66, 0.12); color: #f5b876; border-color: rgba(245, 161, 66, 0.32); }
+  [data-theme="dark"] .pill-pending { background: rgba(149, 117, 215, 0.16); color: #c9b7ec; border-color: rgba(149, 117, 215, 0.34); }
+  [data-theme="dark"] .pill-booked { background: rgba(212, 183, 106, 0.15); color: #f0d893; border-color: rgba(212, 183, 106, 0.32); }
+  [data-theme="dark"] .pill-confirmed { background: rgba(76, 185, 138, 0.15); color: #86e7b3; border-color: rgba(76, 185, 138, 0.34); }
+  [data-theme="dark"] .pill-cancelled { background: rgba(239, 94, 78, 0.14); color: #f3a59a; border-color: rgba(239, 94, 78, 0.32); text-decoration: line-through; }
+  [data-theme="dark"] .pill-complete { background: rgba(122, 138, 159, 0.16); color: var(--ink-soft); border-color: rgba(122, 138, 159, 0.3); }
 
   /* Itinerary */
   .day-row {
@@ -243,7 +410,7 @@
     font-size: 14px;
   }
   table.budget th {
-    background: #f0f4fa;
+    background: var(--card-soft);
     font-weight: 600;
     color: var(--ink);
     font-size: 12px;
@@ -254,7 +421,7 @@
   table.budget tr:last-child td { border-bottom: none; }
   table.budget tr.total td {
     font-weight: 700;
-    background: #f9fbfd;
+    background: var(--card-softer);
     color: var(--ink);
   }
   .budget-note {
@@ -273,11 +440,21 @@
     text-align: center;
   }
 
-  /* Print */
+  /* Print — force light theme for paper */
   @media print {
-    body { background: white; font-size: 11pt; }
+    :root {
+      --ink: #0a2540; --ink-soft: #334e68; --muted: #6b7c93;
+      --line: #e3e8ee; --bg: #ffffff; --card: #ffffff;
+      --card-soft: #f0f4fa; --card-softer: #f9fbfd;
+    }
+    body { background: white !important; color: #0a2540 !important; font-size: 11pt; }
     .container { padding: 0; max-width: none; }
-    header.trip-header { box-shadow: none; }
+    .hero { background: white !important; color: #0a2540 !important; box-shadow: none; border-radius: 0; margin: 0 0 24px; }
+    .hero-aurora, .hero-mountains, .theme-toggle { display: none !important; }
+    .hero-inner { padding: 0 0 24px; }
+    .hero-title, .hero-subtitle, .countdown-row, .countdown-item .value, .hero-eyebrow { color: #0a2540 !important; text-shadow: none !important; }
+    .hero-eyebrow, .countdown-item .label { color: #6b7c93 !important; }
+    .countdown-row { border-top: 1px solid #e3e8ee; }
     .card { break-inside: avoid; box-shadow: none; }
     section { break-inside: auto; }
     .day-row { break-inside: avoid; }
@@ -285,31 +462,81 @@
 </style>
 </head>
 <body>
-<div class="container">
 
-<header class="trip-header">
-  <div class="trip-eyebrow" id="trip-eyebrow">Trip eyebrow</div>
-  <h1 class="trip-title" id="trip-title">Trip title</h1>
-  <p class="trip-subtitle" id="trip-subtitle">Trip subtitle</p>
-  <div class="countdown-row">
-    <div class="countdown-item">
-      <div class="label">Departure</div>
-      <div class="value" id="countdown-depart">—</div>
-    </div>
-    <div class="countdown-item">
-      <div class="label">Return</div>
-      <div class="value" id="countdown-return">—</div>
-    </div>
-    <div class="countdown-item">
-      <div class="label">Length</div>
-      <div class="value" id="countdown-length">—</div>
-    </div>
-    <div class="countdown-item">
-      <div class="label">Days Until</div>
-      <div class="value" id="countdown-days">—</div>
+<header class="hero">
+  <svg class="hero-aurora" viewBox="0 0 1200 400" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="auroraGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%"   style="stop-color: var(--aurora-1); stop-opacity: 0"/>
+        <stop offset="30%"  style="stop-color: var(--aurora-1); stop-opacity: 0.55"/>
+        <stop offset="55%"  style="stop-color: var(--aurora-2); stop-opacity: 0.55"/>
+        <stop offset="80%"  style="stop-color: var(--aurora-1); stop-opacity: 0.45"/>
+        <stop offset="100%" style="stop-color: var(--aurora-2); stop-opacity: 0"/>
+      </linearGradient>
+      <linearGradient id="auroraGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%"   style="stop-color: var(--aurora-2); stop-opacity: 0"/>
+        <stop offset="50%"  style="stop-color: var(--aurora-1); stop-opacity: 0.35"/>
+        <stop offset="100%" style="stop-color: var(--aurora-2); stop-opacity: 0"/>
+      </linearGradient>
+    </defs>
+    <path fill="url(#auroraGrad)"
+      d="M0,160 Q300,40 600,130 T1200,90 L1200,260 Q900,180 600,250 T0,290 Z"/>
+    <path fill="url(#auroraGrad2)" opacity="0.7"
+      d="M0,80 Q400,140 800,80 T1200,120 L1200,220 Q800,160 400,220 T0,180 Z"/>
+  </svg>
+  <svg class="hero-mountains" viewBox="0 0 1200 240" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <!-- Far range -->
+    <path style="fill: var(--mountain-far); opacity: 0.7"
+      d="M0,140 L70,90 L150,130 L230,70 L320,120 L420,80 L520,130 L620,90 L740,140 L860,100 L980,140 L1080,110 L1200,150 L1200,240 L0,240 Z"/>
+    <!-- Middle range -->
+    <path style="fill: var(--mountain-mid); opacity: 0.92"
+      d="M0,170 L60,120 L140,160 L240,95 L340,150 L460,110 L580,160 L700,115 L820,165 L940,125 L1060,170 L1200,140 L1200,240 L0,240 Z"/>
+    <!-- Foreground range -->
+    <path style="fill: var(--mountain-near)"
+      d="M0,200 L60,150 L130,180 L220,130 L320,185 L440,140 L560,190 L680,150 L800,195 L920,155 L1040,200 L1140,170 L1200,195 L1200,240 L0,240 Z"/>
+    <!-- Snow caps on near peaks -->
+    <path style="fill: var(--snow-tint)"
+      d="M220,130 L235,138 L255,134 L270,142 L255,148 L240,144 L225,140 Z
+         M440,140 L455,148 L475,144 L495,152 L475,158 L460,154 L445,150 Z
+         M680,150 L695,158 L715,154 L735,162 L715,168 L700,164 L685,160 Z
+         M920,155 L935,163 L955,159 L975,167 L955,173 L940,169 L925,165 Z"/>
+  </svg>
+  <div class="hero-inner">
+    <button class="theme-toggle" type="button" onclick="toggleTheme()" aria-label="Toggle dark mode">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+      <span class="toggle-label">Theme</span>
+    </button>
+    <div class="hero-eyebrow" id="trip-eyebrow">Trip eyebrow</div>
+    <h1 class="hero-title" id="trip-title">Trip title</h1>
+    <p class="hero-subtitle" id="trip-subtitle">Trip subtitle</p>
+    <div class="countdown-row">
+      <div class="countdown-item">
+        <div class="label">Departure</div>
+        <div class="value" id="countdown-depart">—</div>
+      </div>
+      <div class="countdown-item">
+        <div class="label">Return</div>
+        <div class="value" id="countdown-return">—</div>
+      </div>
+      <div class="countdown-item">
+        <div class="label">Length</div>
+        <div class="value" id="countdown-length">—</div>
+      </div>
+      <div class="countdown-item">
+        <div class="label">Days Until</div>
+        <div class="value" id="countdown-days">—</div>
+      </div>
     </div>
   </div>
 </header>
+
+<div class="container">
 
 <section>
   <div class="section-header">
@@ -606,7 +833,7 @@
       "name": "Kenai Fjords NP Cruise (Major Marine Tours)",
       "subtitle": "Seward — 6-hr ranger-narrated cruise",
       "status": "todo",
-      "priority": "BOOK TOMORROW — Aug 18 full-day cruise. Confirm puffins + sea otters on this tour (they should be).",
+      "priority": "STILL TO BOOK — Aug 18 full-day cruise. Call 800-764-7300 or book at majormarine.com. Confirm puffins + sea otters on this tour.",
       "fields": {
         "Date target": "Tue, Aug 18, 2026",
         "Tour": "Kenai Fjords National Park Tour (6 hrs, ranger narrated, lunch incl.)",
@@ -663,7 +890,7 @@
     { "date": "2026-08-15", "plan": "Leisurely morning at Denali Bluffs. <strong>1:00 PM Tundra Wilderness Tour</strong> pickup at hotel lobby (be ready 12:40 PM). Bus into Denali NP to Mile 43, ~5.5 hrs. Back ~6:30 PM. Res #3F018L." },
     { "date": "2026-08-16", "plan": "Relaxed morning at Denali Bluffs (sleep in, breakfast). <strong>Be in lobby by 11:00 AM</strong> — Fly Denali pickup at 11:10 AM for 12:00 PM wheels-up at Healy River Airport. 100-minute scenic flight with glacier landing on Ruth Glacier. Lookup #VG1DMB. Back at hotel by mid-afternoon, evening free." },
     { "date": "2026-08-17", "plan": "<strong>GoldStar train Denali → ANC</strong> — depart 12:30 PM (check-in 11:30 AM), arrive 8:00 PM. Conf #WRR788421. Check into Hotel Captain Cook (Junior Suite). Booking #9092917186777." },
-    { "date": "2026-08-18", "plan": "<strong>Kenai Fjords National Park cruise (Major Marine Tours).</strong> 6:30 AM wake, 7:30 AM drive Seward Highway (rental car), 10:30 AM arrive Seward, 11:30 AM - 5:30 PM ranger-narrated cruise (tidewater glaciers, puffins, sea otters, whales, sea lions), drive back to Captain Cook by 8:30 PM. <strong>Late dinner</strong> — consider moving Crow's Nest to Aug 17 evening instead." },
+    { "date": "2026-08-18", "plan": "<strong>Kenai Fjords National Park cruise (Major Marine Tours) — NOT YET BOOKED.</strong> 6:30 AM wake, 7:30 AM drive Seward Highway (rental car), 10:30 AM arrive Seward, 11:30 AM - 5:30 PM ranger-narrated cruise (tidewater glaciers, puffins, sea otters, whales, sea lions), drive back to Captain Cook by 8:30 PM. <strong>Late dinner</strong> — consider moving Crow's Nest to Aug 17 evening instead." },
     { "date": "2026-08-19", "plan": "Full day in Anchorage (museum, last shopping). <strong>DL 0416 ANC → ATL departs 8:24 PM</strong> — Delta One overnight, arrive ATL 7:14 AM Aug 20." }
   ],
   "budget": [
@@ -680,7 +907,7 @@
     { "line": "Harv's whale tour (6-pax boat)",                      "category": "Activity", "estimate": 500,     "actual": 441.00,  "status": "booked",    "notes": "Alaska Galore Tours / Harv & Marv's, booking #351420672" },
     { "line": "TEMSCO helicopter + dog sled on Mendenhall Glacier", "category": "Activity", "estimate": 1400,    "actual": 1481.88, "status": "booked",    "notes": "Conf #351540985. $82 over estimate, basically on budget." },
     { "line": "Tundra Wilderness Tour (Denali bus)",                 "category": "Activity", "estimate": 320,     "actual": 289.50,  "status": "booked",    "notes": "Itin #30002M842, Res #3F018L. $30.50 under estimate." },
-    { "line": "Denali flightseeing + glacier landing (Fly Denali)",   "category": "Activity", "estimate": 1200, "actual": 1558.00, "status": "booked",    "notes": "Lookup VG1DMB. 12 PM wheels-up Aug 16, hotel pickup. $358 over estimate, BUT saves $200 rental car + no 6-hr drive. TAT refund of $1,293.14 still pending." },
+    { "line": "Denali flightseeing + glacier landing (Fly Denali)",   "category": "Activity", "estimate": 1200, "actual": 1558.00, "status": "booked",    "notes": "Lookup VG1DMB. 12 PM wheels-up Aug 16, hotel pickup. $358 over estimate, BUT saves $200 rental car + no 6-hr drive. TAT refund of $1,293.14 verified received." },
     { "line": "Meals (11 days × ~$130/day for two)",                 "category": "Food",     "estimate": 1500,    "actual": null,    "status": "estimated", "notes": "Mix of casual and nicer dinners" },
     { "line": "Kenai Fjords NP Cruise (Major Marine, Aug 18)",       "category": "Activity", "estimate": 440,     "actual": null,    "status": "estimated", "notes": "6-hr ranger-narrated cruise. ~$220/pax." },
     { "line": "Seward day rental car (Aug 18)",                      "category": "Transit",  "estimate": 130,     "actual": null,    "status": "estimated", "notes": "1-day rental for Anchorage → Seward → Anchorage round trip." },
@@ -689,9 +916,8 @@
   "budgetNote": "Estimate excludes value of Bonvoy points and SkyMiles burned. Budget ceiling: $15,000. Estimate above totals ~$11,930 cash + points; comfortably inside budget with cushion for upgrades or extra excursions.",
   "deadlines": [
     { "date": "2026-08-15", "item": "Save NPS pass receipt from Tundra Wilderness Tour", "consequence": "The $15/pax NPS entrance fee is included in the Tundra Wilderness Tour ticket Aug 15 and gives you a 7-day Denali Park pass. SAVE THE RECEIPT/PASS to show Fly Denali on Aug 16 — covers the glacier landing entrance requirement, no additional fee needed." },
-    { "date": "2026-06-05", "item": "Verify TAT refund posted ($1,293.14)", "consequence": "Cancelled TAT booking #351549171 — refund should hit credit card within 5-7 business days. If not posted by Jun 5, call TAT 907-733-2218 or email info@talkeetnaair.com." },
-    { "date": "2026-05-28", "item": "Book Kenai Fjords cruise (Aug 18)", "consequence": "Major Marine Tours' 6-hr Kenai Fjords National Park Tour — 800-764-7300 or majormarine.com. Confirm puffins + sea otters are on the route. ~$220/pax." },
-    { "date": "2026-05-28", "item": "Sketch tentative dinner schedule (11 nights)", "consequence": "Map a tentative dinner spot for each evening of the trip. Locations: Juneau Aug 9-12 (4), Anchorage Aug 13 (1, late), Denali Aug 14-16 (3), Anchorage Aug 17-18 (2). Doesn't need reservations yet — just a working list." },
+    { "date": "2026-06-15", "item": "Book Kenai Fjords cruise (Aug 18)", "consequence": "Major Marine Tours' 6-hr Kenai Fjords National Park Tour — 800-764-7300 or majormarine.com. Confirm puffins + sea otters are on the route. ~$220/pax." },
+    { "date": "2026-06-15", "item": "Sketch tentative dinner schedule (11 nights)", "consequence": "Map a tentative dinner spot for each evening of the trip. Locations: Juneau Aug 9-12 (4), Anchorage Aug 13 (1, late), Denali Aug 14-16 (3), Anchorage Aug 17-18 (2). Doesn't need reservations yet — just a working list." },
     { "date": "2026-08-15", "item": "Confirm Fly Denali hotel pickup", "consequence": "Pickup at Denali Bluffs at 11:10 AM for 12:00 PM Aug 16 flight. Per their confirmation, let them know 24+ hrs ahead that you're at Denali Bluffs — call 907-683-2359 or email info@flydenali.net to confirm." },
     { "date": "2026-07-01", "item": "Add rail transfer to Denali Bluffs reservation", "consequence": "Call NPR at 1-866-875-8456 option 2 and add round-trip rail transfer ($24/pax) + baggage handling ($10/pax) = $68 to reservation #HAS87JEDY. Shuttle from train depot Aug 14, return Aug 17." },
     { "date": "2026-07-11", "item": "Harv's whale tour (Aug 10)", "consequence": "Last day for full refund minus $50 service fee. After this, 50% refund only." },
@@ -858,14 +1084,14 @@
           <span>Projected ${pctOfCeiling}% of ceiling</span>
           <span>$${ceiling.toLocaleString()}</span>
         </div>
-        <div style="height: 14px; background: #f0f4fa; border-radius: 999px; overflow: hidden; position: relative;">
+        <div style="height: 14px; background: var(--card-soft); border-radius: 999px; overflow: hidden; position: relative;">
           <div style="position:absolute; left:0; top:0; bottom:0; width: ${pctBooked}%; background: var(--green);"></div>
           <div style="position:absolute; left:${pctBooked}%; top:0; bottom:0; width: ${pctOfCeiling - pctBooked}%; background: var(--amber);"></div>
         </div>
         <div style="display: flex; gap: 18px; font-size: 11px; color: var(--muted); margin-top: 8px;">
           <span><span style="display:inline-block; width:10px; height:10px; background: var(--green); border-radius: 2px; vertical-align: middle; margin-right: 4px;"></span>Booked</span>
           <span><span style="display:inline-block; width:10px; height:10px; background: var(--amber); border-radius: 2px; vertical-align: middle; margin-right: 4px;"></span>Estimated remaining</span>
-          <span><span style="display:inline-block; width:10px; height:10px; background: #f0f4fa; border-radius: 2px; vertical-align: middle; margin-right: 4px;"></span>Headroom</span>
+          <span><span style="display:inline-block; width:10px; height:10px; background: var(--card-soft); border: 1px solid var(--line); border-radius: 2px; vertical-align: middle; margin-right: 4px;"></span>Headroom</span>
         </div>
       </div>
     `;
@@ -882,19 +1108,16 @@
     })).filter(g => g.items.length > 0);
 
     const statusPill = (status) => {
-      const map = {
-        booked: ['#e3f5ea', 'var(--green)', '#b8e0c8', 'Booked'],
-        estimated: ['#fff1e8', 'var(--amber)', '#ffd9c2', 'Est.'],
-        pending: ['#ede9fe', '#6d28d9', '#c4b5fd', 'Pending']
-      };
-      const [bg, color, border, label] = map[status] || map.estimated;
-      return `<span style="display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; background: ${bg}; color: ${color}; border: 1px solid ${border};">${label}</span>`;
+      // Reuse the .pill-* classes so dark-mode overrides apply automatically.
+      const cls = { booked: 'pill-confirmed', estimated: 'pill-todo', pending: 'pill-pending' }[status] || 'pill-todo';
+      const label = { booked: 'Booked', estimated: 'Est.', pending: 'Pending' }[status] || 'Est.';
+      return `<span class="pill ${cls}" style="padding: 2px 8px; font-size: 10px;">${label}</span>`;
     };
 
     let tableRows = '';
     grouped.forEach(g => {
       const catEstimate = g.items.reduce((s, i) => s + (i.actual != null ? i.actual : i.estimate), 0);
-      tableRows += `<tr style="background: #f0f4fa;"><td colspan="3" style="font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink);">${g.name}</td><td class="amount" style="font-weight: 600;">${money(catEstimate)}</td></tr>`;
+      tableRows += `<tr style="background: var(--card-soft);"><td colspan="3" style="font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink);">${g.name}</td><td class="amount" style="font-weight: 600;">${money(catEstimate)}</td></tr>`;
       g.items.forEach(i => {
         const display = i.actual != null ? money(i.actual) : money(i.estimate);
         const noteHtml = i.notes ? `<div style="font-size: 11px; color: var(--muted); margin-top: 2px;">${i.notes}</div>` : '';
@@ -930,13 +1153,13 @@
       const daysOut = Math.ceil((ddt.getTime() - todayMs.getTime()) / 86400000);
       let status, statusColor, bg;
       if (daysOut < 0) {
-        status = 'PASSED'; statusColor = '#6b7c93'; bg = '#f6f8fb'; passed++;
+        status = 'PASSED'; statusColor = 'var(--muted)'; bg = 'var(--card-soft)'; passed++;
       } else if (daysOut <= 7) {
-        status = `${daysOut} day${daysOut === 1 ? '' : 's'} left`; statusColor = '#c0392b'; bg = '#fdebe8'; upcoming++;
+        status = `${daysOut} day${daysOut === 1 ? '' : 's'} left`; statusColor = 'var(--red)'; bg = 'rgba(192, 57, 43, 0.08)'; upcoming++;
       } else if (daysOut <= 30) {
-        status = `${daysOut} days left`; statusColor = '#d97706'; bg = '#fff5e8'; upcoming++;
+        status = `${daysOut} days left`; statusColor = 'var(--amber)'; bg = 'rgba(217, 119, 6, 0.08)'; upcoming++;
       } else {
-        status = `${daysOut} days left`; statusColor = '#2f8f5a'; bg = '#ffffff'; upcoming++;
+        status = `${daysOut} days left`; statusColor = 'var(--green)'; bg = 'var(--card)'; upcoming++;
       }
       const dateStr = ddt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
       const opacity = daysOut < 0 ? '0.55' : '1';
