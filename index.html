@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Alaska 2026 — Ken & Georgianna</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
   // Theme init — runs before paint to avoid flash of wrong theme.
   (function() {
@@ -42,21 +40,31 @@
 <style>
   :root {
     /* Light theme — default */
-    --ink: #0a2540;
-    --ink-soft: #334e68;
-    --muted: #6b7c93;
-    --line: #e3e8ee;
-    --bg: #eef4fa;
-    --card: #ffffff;
-    --card-soft: #f0f4fa;
-    --card-softer: #f9fbfd;
-    --accent: #1e6091;
-    --glacier: #4a9ec7;
-    --gold: #c9a14a;
-    --green: #2f8f5a;
-    --amber: #d97706;
-    --red: #c0392b;
-    --shadow: 0 1px 2px rgba(10, 37, 64, 0.06), 0 8px 24px rgba(10, 37, 64, 0.04);
+    --scenic-image: url("https://upload.wikimedia.org/wikipedia/commons/1/1d/Mendenhall_River_Glacier-Tongass.jpg");
+    --ink: #082033;
+    --ink-soft: #294458;
+    --muted: #6d7f8d;
+    --line: rgba(22, 56, 70, 0.15);
+    --section-line: rgba(8, 32, 51, 0.22);
+    --bg: #e7f0ee;
+    --card: rgba(255, 255, 255, 0.9);
+    --card-soft: rgba(240, 246, 244, 0.88);
+    --card-softer: rgba(249, 252, 250, 0.96);
+    --accent: #1f6f8b;
+    --glacier: #69b9cb;
+    --gold: #b9903f;
+    --green: #24795a;
+    --amber: #b76612;
+    --red: #b94032;
+    --shadow: 0 18px 50px rgba(8, 32, 51, 0.12), 0 2px 8px rgba(8, 32, 51, 0.06);
+    --glass: rgba(255, 255, 255, 0.76);
+    --glass-strong: rgba(255, 255, 255, 0.9);
+    --body-overlay:
+      radial-gradient(circle at 15% 12%, rgba(105, 185, 203, 0.18), transparent 32%),
+      linear-gradient(180deg, rgba(241, 247, 245, 0.76) 0%, rgba(250, 252, 251, 0.94) 42%, rgba(239, 246, 244, 0.98) 100%);
+    --hero-overlay:
+      linear-gradient(90deg, rgba(5, 21, 32, 0.58) 0%, rgba(5, 21, 32, 0.3) 52%, rgba(5, 21, 32, 0.08) 100%),
+      linear-gradient(180deg, rgba(5, 21, 32, 0.04) 0%, rgba(5, 21, 32, 0.42) 100%);
 
     /* Hero — bright Alaska sky over snow */
     --hero-top: #4f9fd0;
@@ -76,21 +84,30 @@
 
   [data-theme="dark"] {
     /* Dark theme — aurora over snowy peaks */
-    --ink: #dde7f4;
-    --ink-soft: #a8b9d0;
-    --muted: #6f8298;
-    --line: #1f2f4a;
-    --bg: #0b1426;
-    --card: #142442;
-    --card-soft: #1a2d4f;
-    --card-softer: #182742;
-    --accent: #6ab8db;
-    --glacier: #88ceea;
-    --gold: #d4b76a;
-    --green: #4cb98a;
-    --amber: #f5a142;
-    --red: #ef5e4e;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.25);
+    --ink: #e8f1f5;
+    --ink-soft: #b7c9d3;
+    --muted: #8da1ad;
+    --line: rgba(157, 198, 211, 0.18);
+    --section-line: rgba(232, 241, 245, 0.2);
+    --bg: #06121d;
+    --card: rgba(8, 23, 36, 0.88);
+    --card-soft: rgba(12, 36, 54, 0.86);
+    --card-softer: rgba(11, 30, 45, 0.96);
+    --accent: #7cc9df;
+    --glacier: #a5dce9;
+    --gold: #dfbe72;
+    --green: #6dd0a4;
+    --amber: #efa64d;
+    --red: #f07666;
+    --shadow: 0 18px 55px rgba(0, 0, 0, 0.42), 0 2px 8px rgba(0, 0, 0, 0.28);
+    --glass: rgba(8, 23, 36, 0.7);
+    --glass-strong: rgba(8, 23, 36, 0.9);
+    --body-overlay:
+      radial-gradient(circle at 15% 12%, rgba(71, 185, 153, 0.22), transparent 34%),
+      linear-gradient(180deg, rgba(4, 10, 18, 0.82) 0%, rgba(6, 18, 29, 0.94) 48%, rgba(4, 10, 18, 0.98) 100%);
+    --hero-overlay:
+      linear-gradient(90deg, rgba(2, 8, 16, 0.84) 0%, rgba(2, 8, 16, 0.56) 54%, rgba(2, 8, 16, 0.18) 100%),
+      linear-gradient(180deg, rgba(2, 8, 16, 0.16) 0%, rgba(2, 8, 16, 0.72) 100%);
 
     --hero-top: #040813;
     --hero-mid: #0a1834;
@@ -108,14 +125,26 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body {
+  html {
+    background: var(--bg);
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
     background: var(--bg);
+    background-image: var(--body-overlay), var(--scenic-image);
+    background-size: cover, cover;
+    background-position: center top, center top;
+    background-attachment: fixed, fixed;
     color: var(--ink);
     font-size: 15px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     transition: background-color 0.25s ease, color 0.25s ease;
+    min-height: 100vh;
+    max-width: 100%;
+    overflow-x: hidden;
   }
   .container {
     max-width: 1100px;
@@ -126,18 +155,32 @@
   /* ============== HERO ============== */
   .hero {
     position: relative;
-    margin: 0 -24px 36px;
-    background: linear-gradient(180deg, var(--hero-top) 0%, var(--hero-mid) 55%, var(--hero-bot) 100%);
+    margin: 0 0 44px;
+    background-image: var(--hero-overlay), var(--scenic-image);
+    background-size: cover, cover;
+    background-position: center, center 44%;
     overflow: hidden;
     color: var(--hero-text);
-    border-radius: 0 0 24px 24px;
-    box-shadow: var(--shadow);
+    border-radius: 0 0 28px 28px;
+    box-shadow: 0 28px 70px rgba(8, 32, 51, 0.28);
+    isolation: isolate;
+    min-height: 520px;
+  }
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 42%;
+    background: linear-gradient(180deg, transparent 0%, rgba(5, 21, 32, 0.2) 55%, rgba(5, 21, 32, 0.48) 100%);
+    z-index: 1;
+    pointer-events: none;
   }
   .hero-inner {
     position: relative;
+    width: 100%;
     max-width: 1100px;
     margin: 0 auto;
-    padding: 56px 32px 200px;
+    padding: 72px 32px 92px;
     z-index: 3;
   }
   .hero-aurora {
@@ -159,14 +202,7 @@
     100% { transform: translate3d(2%, -2%, 0) scale(1.06); }
   }
   .hero-mountains {
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    right: 0;
-    width: 100%;
-    height: 220px;
-    pointer-events: none;
-    z-index: 2;
+    display: none;
   }
   .hero-eyebrow {
     text-transform: uppercase;
@@ -176,25 +212,36 @@
     margin-bottom: 14px;
   }
   .hero-title {
-    font-size: 46px;
+    font-size: 54px;
     font-weight: 800;
-    letter-spacing: -0.025em;
+    letter-spacing: 0;
     line-height: 1.05;
     margin-bottom: 12px;
-    text-shadow: 0 2px 16px rgba(0,0,0,0.25);
+    max-width: 720px;
+    text-shadow: 0 4px 26px rgba(0,0,0,0.42);
   }
   .hero-subtitle {
-    font-size: 17px;
+    font-size: 18px;
     color: var(--hero-text-muted);
-    margin-bottom: 28px;
+    margin-bottom: 30px;
     max-width: 640px;
+    text-shadow: 0 2px 16px rgba(0,0,0,0.42);
   }
   .countdown-row {
-    display: flex;
-    gap: 32px;
-    flex-wrap: wrap;
-    padding-top: 22px;
-    border-top: 1px solid var(--hero-divider);
+    display: grid;
+    grid-template-columns: repeat(4, minmax(130px, 1fr));
+    gap: 10px;
+    width: 100%;
+    max-width: 780px;
+  }
+  .countdown-item {
+    min-width: 0;
+    background: rgba(255, 255, 255, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 8px;
+    padding: 13px 14px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
   }
   .countdown-item .label {
     font-size: 10px;
@@ -204,9 +251,10 @@
     margin-bottom: 4px;
   }
   .countdown-item .value {
-    font-size: 22px;
+    font-size: 21px;
     font-weight: 700;
     color: var(--hero-text);
+    overflow-wrap: break-word;
   }
 
   /* Theme toggle button */
@@ -251,27 +299,32 @@
   [data-theme="dark"] .theme-toggle .icon-moon { display: inline-block; }
 
   @media (max-width: 640px) {
-    .hero-inner { padding: 44px 24px 170px; }
-    .hero-title { font-size: 34px; }
-    .hero-mountains { height: 170px; }
-    .countdown-row { gap: 20px; }
+    body { background-attachment: scroll, scroll; }
+    .hero { min-height: auto; margin-bottom: 30px; border-radius: 0 0 18px 18px; }
+    .hero-inner { padding: 70px 24px 52px; }
+    .hero-title { font-size: 29px; max-width: 300px; overflow-wrap: break-word; }
+    .hero-subtitle { max-width: 320px; }
+    .countdown-row { grid-template-columns: 1fr; gap: 8px; }
+    .countdown-item { padding: 11px 12px; }
+    .countdown-item .value { font-size: 18px; }
     .theme-toggle { top: 14px; right: 14px; }
+    .theme-toggle .toggle-label { display: none; }
   }
 
   /* Sections */
-  section { margin-bottom: 40px; }
+  section { margin-bottom: 44px; }
   .section-header {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
     margin-bottom: 16px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid var(--ink);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--section-line);
   }
   .section-title {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 700;
-    letter-spacing: -0.01em;
+    letter-spacing: 0;
   }
   .section-summary {
     font-size: 13px;
@@ -283,9 +336,10 @@
   .card {
     background: var(--card);
     border: 1px solid var(--line);
-    border-radius: 10px;
+    border-radius: 8px;
     padding: 18px 20px;
     box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
   }
   .card-top {
     display: flex;
@@ -371,11 +425,19 @@
   [data-theme="dark"] .pill-complete { background: rgba(122, 138, 159, 0.16); color: var(--ink-soft); border-color: rgba(122, 138, 159, 0.3); }
 
   /* Itinerary */
+  #itinerary-list {
+    background: var(--glass);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
+    overflow: hidden;
+  }
   .day-row {
     display: grid;
     grid-template-columns: 110px 1fr;
     gap: 20px;
-    padding: 14px 0;
+    padding: 16px 20px;
     border-bottom: 1px solid var(--line);
   }
   .day-row:last-child { border-bottom: none; }
@@ -394,14 +456,240 @@
   .day-plan { color: var(--ink-soft); }
   .day-plan strong { color: var(--ink); }
 
+  /* Route map */
+  .map-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1.8fr) minmax(260px, 0.8fr);
+    gap: 16px;
+    align-items: stretch;
+  }
+  .map-panel {
+    background: var(--glass);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
+    overflow: hidden;
+  }
+  #trip-map {
+    height: 560px;
+    min-height: 420px;
+    width: 100%;
+    background: var(--card-soft);
+  }
+  .map-sidebar {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 12px;
+  }
+  .map-actions {
+    display: inline-flex;
+    width: 100%;
+    padding: 4px;
+    background: var(--card-soft);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .map-button {
+    flex: 1;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 10px;
+  }
+  .map-button.active {
+    background: var(--card);
+    color: var(--ink);
+    box-shadow: 0 1px 6px rgba(8, 32, 51, 0.1);
+  }
+  .map-kicker {
+    background: var(--glass-strong);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--ink-soft);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 11px 14px;
+    text-transform: uppercase;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
+  }
+  .route-timeline {
+    background: var(--glass);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
+    max-height: 482px;
+    overflow: auto;
+  }
+  .route-step {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 12px;
+    padding: 13px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .route-step:last-child { border-bottom: none; }
+  .route-step-number {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+  .route-step-date {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .route-step-title {
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  .route-step-detail {
+    color: var(--ink-soft);
+    font-size: 12px;
+    margin-top: 2px;
+  }
+  .map-legend {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 12px 14px;
+    background: var(--glass);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
+  }
+  .legend-line {
+    display: inline-block;
+    width: 22px;
+    height: 3px;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+  .legend-flight { background: #d97758; }
+  .legend-rail { background: #4f89b8; }
+  .legend-daytrip {
+    background: repeating-linear-gradient(90deg, #5b9c7a 0 6px, transparent 6px 10px);
+  }
+  .legend-drive { background: #c29a4a; }
+  .trip-pin {
+    display: grid;
+    place-items: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 6px;
+    border-radius: 999px;
+    border: 2px solid #fff;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  }
+  .trip-pin-home { background: #082033; }
+  .trip-pin-air { background: #d97758; }
+  .trip-pin-main { background: #3f86a4; }
+  .trip-pin-activity { background: #5b9c7a; }
+  .trip-pin-drive { background: #c29a4a; }
+  .leaflet-container {
+    font-family: inherit;
+  }
+  .leaflet-popup-content-wrapper,
+  .leaflet-popup-tip {
+    background: var(--card-softer);
+    color: var(--ink);
+  }
+  .leaflet-popup-content {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  @media (max-width: 860px) {
+    .map-shell {
+      grid-template-columns: 1fr;
+    }
+    .map-sidebar {
+      grid-template-rows: auto;
+    }
+    #trip-map {
+      height: 430px;
+    }
+    .route-timeline {
+      max-height: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .container { padding: 0 16px 64px; }
+    section { margin-bottom: 34px; }
+    .section-header {
+      display: block;
+    }
+    .section-title {
+      font-size: 21px;
+    }
+    .section-summary {
+      margin-top: 3px;
+    }
+    .card {
+      padding: 16px;
+    }
+    .card-top {
+      display: block;
+    }
+    .pill {
+      margin-top: 8px;
+    }
+    .day-row {
+      grid-template-columns: 1fr;
+      gap: 6px;
+      padding: 15px 16px;
+    }
+    #trip-map {
+      height: 380px;
+    }
+    .map-actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 430px) {
+    .countdown-row { grid-template-columns: 1fr; }
+    .countdown-item .value { font-size: 17px; }
+  }
+
   /* Budget */
   table.budget {
     width: 100%;
     border-collapse: collapse;
     background: var(--card);
-    border-radius: 10px;
+    border-radius: 8px;
     overflow: hidden;
     box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
   }
   table.budget th, table.budget td {
     padding: 12px 18px;
@@ -540,14 +828,6 @@
 
 <section>
   <div class="section-header">
-    <div class="section-title">Reminders</div>
-    <div class="section-summary" id="deadlines-summary"></div>
-  </div>
-  <div id="deadlines-list" style="background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); overflow: hidden;"></div>
-</section>
-
-<section>
-  <div class="section-header">
     <div class="section-title">Daily Itinerary</div>
   </div>
   <div id="itinerary-list"></div>
@@ -555,15 +835,20 @@
 
 <section>
   <div class="section-header">
-    <div class="section-title">Route Map</div>
-    <div class="section-summary">Tap a marker for details</div>
+    <div class="section-title">Trip Map</div>
+    <div class="section-summary">Aug 9–19 overview • tap to enlarge</div>
   </div>
-  <div id="trip-map" style="height: 460px; border-radius: 10px; box-shadow: var(--shadow); border: 1px solid var(--line);"></div>
-  <div style="margin-top: 10px; font-size: 12px; color: var(--muted); display: flex; gap: 18px; flex-wrap: wrap;">
-    <span><span style="display:inline-block; width: 18px; height: 3px; background: #c0392b; vertical-align: middle; margin-right: 4px;"></span>Flights</span>
-    <span><span style="display:inline-block; width: 18px; height: 3px; background: #1e6091; vertical-align: middle; margin-right: 4px;"></span>Rail</span>
-    <span><span style="display:inline-block; width: 18px; height: 3px; background: #2f8f5a; vertical-align: middle; margin-right: 4px; border-top: 1px dashed #2f8f5a;"></span>Day trip (boat/plane)</span>
+  <a href="alaska-map.png" target="_blank" rel="noopener" style="display: block; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--line); background: var(--card); line-height: 0;">
+    <img src="alaska-map.png" alt="Alaska Vacation Map — Aug 9–19, showing daily locations from Juneau to Denali to Anchorage to Seward, with a Southeast Alaska inset for Juneau-area outings" style="display: block; width: 100%; height: auto;" loading="lazy"/>
+  </a>
+</section>
+
+<section>
+  <div class="section-header">
+    <div class="section-title">Reminders</div>
+    <div class="section-summary" id="deadlines-summary"></div>
   </div>
+  <div id="deadlines-list" style="background: var(--glass); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); backdrop-filter: blur(14px); overflow: hidden;"></div>
 </section>
 
 <section>
@@ -615,7 +900,7 @@
 {
   "eyebrow": "2026 Vacation • Birthday Trip",
   "title": "Alaska — Juneau & Denali",
-  "subtitle": "Ken & Georgianna • Whales, bears, glaciers, and the deep interior",
+  "subtitle": "Ken & Georgianna • Whales, Glaciers, and Bears Oh My!",
   "depart": "2026-08-09",
   "return": "2026-08-19",
   "budgetCeiling": 15000,
@@ -831,20 +1116,22 @@
     },
     {
       "name": "Kenai Fjords NP Cruise (Major Marine Tours)",
-      "subtitle": "Seward — 6-hr ranger-narrated cruise",
-      "status": "todo",
-      "priority": "STILL TO BOOK — Aug 18 full-day cruise. Call 800-764-7300 or book at majormarine.com. Confirm puffins + sea otters on this tour.",
+      "subtitle": "Seward — 6-hr ranger-narrated cruise + deli lunch",
+      "status": "confirmed",
       "fields": {
-        "Date target": "Tue, Aug 18, 2026",
-        "Tour": "Kenai Fjords National Park Tour (6 hrs, ranger narrated, lunch incl.)",
+        "Date": "Tue, Aug 18, 2026",
+        "Tour": "Cruise With Deli Lunch — 6-hr Kenai Fjords National Park Cruise (ranger narrated)",
         "Operator": "Major Marine Tours",
-        "Phone": "800-764-7300",
-        "Departure": "Typically 11:30 AM from Seward (~3 hr drive from Anchorage)",
-        "Estimated cost": "~$220/pax = ~$440 for two",
-        "Need": "Rental car for the day (~$110-130 R/T) OR Park Connection Motorcoach (~$250 R/T)",
+        "Check-in": "10:30 AM — Seward Check-In Office in the Harbor 360 Hotel",
+        "Departs / Returns": "Departs 11:30 AM • Returns 5:30 PM",
+        "Office address": "1412 4th Avenue, Seward, AK 99664",
+        "Phone": "(907) 224-8030",
+        "Party": "2 adults • Deli lunch: roast beef sandwich ×2 (included)",
+        "Cost (paid)": "$497.00 — $478 fares + $10 dock fee + $9 park fuel surcharge",
+        "Special assistance": "None needed",
         "Booking link": "https://majormarine.com/"
       },
-      "notes": "Wildlife to confirm before booking: humpback whales, orcas, sea lions, sea otters, puffins (horned & tufted), dall's porpoises. Tidewater glaciers — Holgate Glacier calving up close. This is the marine glacier + fjord experience you haven't had elsewhere on the trip. Long day (12+ hrs) but Aug 17 train day = built-in rest day before."
+      "notes": "Wildlife on this route: humpback whales, orcas, sea lions, sea otters, puffins (horned & tufted), dall's porpoises. Tidewater glaciers — Holgate Glacier calving up close. This is the marine glacier + fjord experience you haven't had elsewhere on the trip. Long day (12+ hrs) but Aug 17 train day = built-in rest day before. Drive ~3 hrs from Anchorage via the Seward Highway — leave by ~7:30 AM to make the 10:30 AM check-in."
     },
     {
       "name": "Denali Flightseeing + Glacier Landing (Fly Denali)",
@@ -890,7 +1177,7 @@
     { "date": "2026-08-15", "plan": "Leisurely morning at Denali Bluffs. <strong>1:00 PM Tundra Wilderness Tour</strong> pickup at hotel lobby (be ready 12:40 PM). Bus into Denali NP to Mile 43, ~5.5 hrs. Back ~6:30 PM. Res #3F018L." },
     { "date": "2026-08-16", "plan": "Relaxed morning at Denali Bluffs (sleep in, breakfast). <strong>Be in lobby by 11:00 AM</strong> — Fly Denali pickup at 11:10 AM for 12:00 PM wheels-up at Healy River Airport. 100-minute scenic flight with glacier landing on Ruth Glacier. Lookup #VG1DMB. Back at hotel by mid-afternoon, evening free." },
     { "date": "2026-08-17", "plan": "<strong>GoldStar train Denali → ANC</strong> — depart 12:30 PM (check-in 11:30 AM), arrive 8:00 PM. Conf #WRR788421. Check into Hotel Captain Cook (Junior Suite). Booking #9092917186777." },
-    { "date": "2026-08-18", "plan": "<strong>Kenai Fjords National Park cruise (Major Marine Tours) — NOT YET BOOKED.</strong> 6:30 AM wake, 7:30 AM drive Seward Highway (rental car), 10:30 AM arrive Seward, 11:30 AM - 5:30 PM ranger-narrated cruise (tidewater glaciers, puffins, sea otters, whales, sea lions), drive back to Captain Cook by 8:30 PM. <strong>Late dinner</strong> — consider moving Crow's Nest to Aug 17 evening instead." },
+    { "date": "2026-08-18", "plan": "<strong>Kenai Fjords National Park cruise (Major Marine Tours) — BOOKED.</strong> 6:30 AM wake, 7:30 AM drive Seward Highway (rental car), 10:30 AM check in at the Seward office (Harbor 360 Hotel), 11:30 AM - 5:30 PM ranger-narrated cruise with deli lunch (tidewater glaciers, puffins, sea otters, whales, sea lions), drive back to Captain Cook by 8:30 PM. <strong>Late dinner</strong> — consider moving Crow's Nest to Aug 17 evening instead." },
     { "date": "2026-08-19", "plan": "Full day in Anchorage (museum, last shopping). <strong>DL 0416 ANC → ATL departs 8:24 PM</strong> — Delta One overnight, arrive ATL 7:14 AM Aug 20." }
   ],
   "budget": [
@@ -909,14 +1196,13 @@
     { "line": "Tundra Wilderness Tour (Denali bus)",                 "category": "Activity", "estimate": 320,     "actual": 289.50,  "status": "booked",    "notes": "Itin #30002M842, Res #3F018L. $30.50 under estimate." },
     { "line": "Denali flightseeing + glacier landing (Fly Denali)",   "category": "Activity", "estimate": 1200, "actual": 1558.00, "status": "booked",    "notes": "Lookup VG1DMB. 12 PM wheels-up Aug 16, hotel pickup. $358 over estimate, BUT saves $200 rental car + no 6-hr drive. TAT refund of $1,293.14 verified received." },
     { "line": "Meals (11 days × ~$130/day for two)",                 "category": "Food",     "estimate": 1500,    "actual": null,    "status": "estimated", "notes": "Mix of casual and nicer dinners" },
-    { "line": "Kenai Fjords NP Cruise (Major Marine, Aug 18)",       "category": "Activity", "estimate": 440,     "actual": null,    "status": "estimated", "notes": "6-hr ranger-narrated cruise. ~$220/pax." },
+    { "line": "Kenai Fjords NP Cruise (Major Marine, Aug 18)",       "category": "Activity", "estimate": 440,     "actual": 497.00,  "status": "booked",    "notes": "Cruise With Deli Lunch, 6-hr ranger-narrated. 2 adults $478 + $10 dock fee + $9 park fuel surcharge. Roast beef deli lunch included. Check-in 10:30 AM at the Harbor 360 Hotel office, Seward." },
     { "line": "Seward day rental car (Aug 18)",                      "category": "Transit",  "estimate": 130,     "actual": null,    "status": "estimated", "notes": "1-day rental for Anchorage → Seward → Anchorage round trip." },
     { "line": "Misc (parking, tips, gifts, contingency)",            "category": "Other",    "estimate": 500,     "actual": null,    "status": "estimated", "notes": "Cash buffer" }
   ],
   "budgetNote": "Estimate excludes value of Bonvoy points and SkyMiles burned. Budget ceiling: $15,000. Estimate above totals ~$11,930 cash + points; comfortably inside budget with cushion for upgrades or extra excursions.",
   "deadlines": [
     { "date": "2026-08-15", "item": "Save NPS pass receipt from Tundra Wilderness Tour", "consequence": "The $15/pax NPS entrance fee is included in the Tundra Wilderness Tour ticket Aug 15 and gives you a 7-day Denali Park pass. SAVE THE RECEIPT/PASS to show Fly Denali on Aug 16 — covers the glacier landing entrance requirement, no additional fee needed." },
-    { "date": "2026-06-15", "item": "Book Kenai Fjords cruise (Aug 18)", "consequence": "Major Marine Tours' 6-hr Kenai Fjords National Park Tour — 800-764-7300 or majormarine.com. Confirm puffins + sea otters are on the route. ~$220/pax." },
     { "date": "2026-06-15", "item": "Sketch tentative dinner schedule (11 nights)", "consequence": "Map a tentative dinner spot for each evening of the trip. Locations: Juneau Aug 9-12 (4), Anchorage Aug 13 (1, late), Denali Aug 14-16 (3), Anchorage Aug 17-18 (2). Doesn't need reservations yet — just a working list." },
     { "date": "2026-08-15", "item": "Confirm Fly Denali hotel pickup", "consequence": "Pickup at Denali Bluffs at 11:10 AM for 12:00 PM Aug 16 flight. Per their confirmation, let them know 24+ hrs ahead that you're at Denali Bluffs — call 907-683-2359 or email info@flydenali.net to confirm." },
     { "date": "2026-07-01", "item": "Add rail transfer to Denali Bluffs reservation", "consequence": "Call NPR at 1-866-875-8456 option 2 and add round-trip rail transfer ($24/pax) + baggage handling ($10/pax) = $68 to reservation #HAS87JEDY. Shuttle from train depot Aug 14, return Aug 17." },
@@ -1061,24 +1347,24 @@
     // Summary cards
     document.getElementById('budget-summary').innerHTML = `
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 14px;">
-        <div style="background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; box-shadow: var(--shadow);">
+        <div style="background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; box-shadow: var(--shadow); backdrop-filter: blur(14px);">
           <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 4px;">Booked (actual)</div>
           <div style="font-size: 22px; font-weight: 700; color: var(--green); font-variant-numeric: tabular-nums;">${money(bookedActual)}</div>
         </div>
-        <div style="background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; box-shadow: var(--shadow);">
+        <div style="background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; box-shadow: var(--shadow); backdrop-filter: blur(14px);">
           <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 4px;">Estimated remaining</div>
           <div style="font-size: 22px; font-weight: 700; color: var(--amber); font-variant-numeric: tabular-nums;">${money(unbookedEstimate)}</div>
         </div>
-        <div style="background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; box-shadow: var(--shadow);">
+        <div style="background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; box-shadow: var(--shadow); backdrop-filter: blur(14px);">
           <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 4px;">Projected total</div>
           <div style="font-size: 22px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums;">${money(projected)}</div>
         </div>
-        <div style="background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; box-shadow: var(--shadow);">
+        <div style="background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; box-shadow: var(--shadow); backdrop-filter: blur(14px);">
           <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 4px;">Headroom vs $${ceiling.toLocaleString()}</div>
           <div style="font-size: 22px; font-weight: 700; color: ${headroom < 0 ? 'var(--red)' : 'var(--accent)'}; font-variant-numeric: tabular-nums;">${money(headroom)}</div>
         </div>
       </div>
-      <div style="background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; box-shadow: var(--shadow);">
+      <div style="background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; box-shadow: var(--shadow); backdrop-filter: blur(14px);">
         <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px;">
           <span>$0</span>
           <span>Projected ${pctOfCeiling}% of ceiling</span>
@@ -1176,77 +1462,7 @@
     document.getElementById('deadlines-summary').textContent = `${upcoming} upcoming${passed ? ' • ' + passed + ' passed' : ''}`;
   })();
 
-  // ============== MAP ==============
-  const stops = [
-    { name: 'Juneau (JNU)',       coords: [58.3019, -134.4197], desc: 'Aug 9–13 • Four Points by Sheraton • whales, bears, glacier', marker: 'main' },
-    { name: 'Waterfall Creek',    coords: [57.8500, -135.3000], desc: 'Aug 11 • Brown bear day trip via floatplane (Chichagof Island)', marker: 'activity' },
-    { name: 'Mendenhall Glacier', coords: [58.4178, -134.5481], desc: 'Aug 12 • Helicopter glacier tour',                  marker: 'activity' },
-    { name: 'Anchorage (ANC)',    coords: [61.2181, -149.9003], desc: 'Aug 13 layover + Aug 17–19 • Sheraton Anchorage',   marker: 'main' },
-    { name: 'Denali NP',          coords: [63.7280, -148.8868], desc: 'Aug 14–17 • Denali Bluffs Hotel • Tundra bus tour', marker: 'main' },
-    { name: 'Talkeetna',          coords: [62.3209, -150.1066], desc: 'Aug 16 • Flightseeing + glacier landing on Mt. Denali', marker: 'activity' }
-  ];
-
-  const routes = [
-    { from: 'Juneau (JNU)',   to: 'Waterfall Creek',    color: '#2f8f5a', mode: 'daytrip', label: 'Floatplane Aug 11' },
-    { from: 'Juneau (JNU)',   to: 'Mendenhall Glacier', color: '#2f8f5a', mode: 'daytrip', label: 'Helicopter Aug 12' },
-    { from: 'Juneau (JNU)',   to: 'Anchorage (ANC)',    color: '#c0392b', mode: 'flight', label: 'Intra-AK Aug 13' },
-    { from: 'Anchorage (ANC)',to: 'Denali NP',          color: '#1e6091', mode: 'rail',   label: 'GoldStar rail Aug 14' },
-    { from: 'Denali NP',      to: 'Talkeetna',          color: '#2f8f5a', mode: 'daytrip', label: 'Flightseeing Aug 16' },
-    { from: 'Denali NP',      to: 'Anchorage (ANC)',    color: '#1e6091', mode: 'rail',   label: 'GoldStar rail Aug 17' }
-  ];
-
-  const map = L.map('trip-map', { scrollWheelZoom: false });
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap', maxZoom: 18
-  }).addTo(map);
-
-  // Marker icon style by type
-  const iconFor = (type) => {
-    const colors = { home: '#0a2540', main: '#1e6091', activity: '#2f8f5a', transit: '#6b7c93' };
-    return L.divIcon({
-      className: 'custom-pin',
-      html: `<div style="width:18px;height:18px;border-radius:50%;background:${colors[type]};border:3px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.4);"></div>`,
-      iconSize: [18, 18],
-      iconAnchor: [9, 9]
-    });
-  };
-
-  // Stops
-  const stopByName = {};
-  stops.forEach(s => {
-    stopByName[s.name] = s.coords;
-    L.marker(s.coords, { icon: iconFor(s.marker) })
-      .addTo(map)
-      .bindPopup(`<strong>${s.name}</strong><br>${s.desc}`);
-  });
-
-  // Routes — flights as great-circle approximations (simple curve), rail/daytrip as straight lines
-  const greatCircle = (a, b, segments = 24) => {
-    const lat1 = a[0] * Math.PI/180, lon1 = a[1] * Math.PI/180;
-    const lat2 = b[0] * Math.PI/180, lon2 = b[1] * Math.PI/180;
-    const d = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((lat2-lat1)/2),2) + Math.cos(lat1)*Math.cos(lat2)*Math.pow(Math.sin((lon2-lon1)/2),2)));
-    const pts = [];
-    for (let i = 0; i <= segments; i++) {
-      const f = i / segments;
-      const A = Math.sin((1-f)*d)/Math.sin(d), B = Math.sin(f*d)/Math.sin(d);
-      const x = A*Math.cos(lat1)*Math.cos(lon1) + B*Math.cos(lat2)*Math.cos(lon2);
-      const y = A*Math.cos(lat1)*Math.sin(lon1) + B*Math.cos(lat2)*Math.sin(lon2);
-      const z = A*Math.sin(lat1) + B*Math.sin(lat2);
-      pts.push([Math.atan2(z, Math.sqrt(x*x + y*y)) * 180/Math.PI, Math.atan2(y, x) * 180/Math.PI]);
-    }
-    return pts;
-  };
-
-  routes.forEach(r => {
-    const from = stopByName[r.from], to = stopByName[r.to];
-    if (!from || !to) return;
-    const path = r.mode === 'flight' ? greatCircle(from, to) : [from, to];
-    const dashArray = r.mode === 'daytrip' ? '6,6' : null;
-    L.polyline(path, { color: r.color, weight: 3, opacity: 0.85, dashArray }).addTo(map).bindPopup(r.label);
-  });
-
-  // Fit bounds
-  map.fitBounds(L.latLngBounds(stops.map(s => s.coords)), { padding: [30, 30] });
+  // Map rendered as a static image — see <img src="alaska-map.png"> above.
 </script>
 </body>
 </html>
