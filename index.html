@@ -456,191 +456,6 @@
   .day-plan { color: var(--ink-soft); }
   .day-plan strong { color: var(--ink); }
 
-  /* Route map */
-  .map-shell {
-    display: grid;
-    grid-template-columns: minmax(0, 1.8fr) minmax(260px, 0.8fr);
-    gap: 16px;
-    align-items: stretch;
-  }
-  .map-panel {
-    background: var(--glass);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(14px);
-    overflow: hidden;
-  }
-  #trip-map {
-    height: 560px;
-    min-height: 420px;
-    width: 100%;
-    background: var(--card-soft);
-  }
-  .map-sidebar {
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    gap: 12px;
-  }
-  .map-actions {
-    display: inline-flex;
-    width: 100%;
-    padding: 4px;
-    background: var(--card-soft);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-  }
-  .map-button {
-    flex: 1;
-    border: 0;
-    border-radius: 6px;
-    background: transparent;
-    color: var(--ink-soft);
-    cursor: pointer;
-    font: inherit;
-    font-size: 12px;
-    font-weight: 700;
-    padding: 8px 10px;
-  }
-  .map-button.active {
-    background: var(--card);
-    color: var(--ink);
-    box-shadow: 0 1px 6px rgba(8, 32, 51, 0.1);
-  }
-  .map-kicker {
-    background: var(--glass-strong);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    color: var(--ink-soft);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    padding: 11px 14px;
-    text-transform: uppercase;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(14px);
-  }
-  .route-timeline {
-    background: var(--glass);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(14px);
-    max-height: 482px;
-    overflow: auto;
-  }
-  .route-step {
-    display: grid;
-    grid-template-columns: 32px 1fr;
-    gap: 12px;
-    padding: 13px 14px;
-    border-bottom: 1px solid var(--line);
-  }
-  .route-step:last-child { border-bottom: none; }
-  .route-step-number {
-    display: grid;
-    place-items: center;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #fff;
-    font-size: 12px;
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-  }
-  .route-step-date {
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 2px;
-  }
-  .route-step-title {
-    color: var(--ink);
-    font-size: 13px;
-    font-weight: 700;
-    line-height: 1.35;
-  }
-  .route-step-detail {
-    color: var(--ink-soft);
-    font-size: 12px;
-    margin-top: 2px;
-  }
-  .map-legend {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    align-items: center;
-    padding: 12px 14px;
-    background: var(--glass);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    color: var(--muted);
-    font-size: 12px;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(14px);
-  }
-  .legend-line {
-    display: inline-block;
-    width: 22px;
-    height: 3px;
-    margin-right: 5px;
-    vertical-align: middle;
-  }
-  .legend-flight { background: #d97758; }
-  .legend-rail { background: #4f89b8; }
-  .legend-daytrip {
-    background: repeating-linear-gradient(90deg, #5b9c7a 0 6px, transparent 6px 10px);
-  }
-  .legend-drive { background: #c29a4a; }
-  .trip-pin {
-    display: grid;
-    place-items: center;
-    min-width: 28px;
-    height: 28px;
-    padding: 0 6px;
-    border-radius: 999px;
-    border: 2px solid #fff;
-    color: #fff;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.02em;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
-  }
-  .trip-pin-home { background: #082033; }
-  .trip-pin-air { background: #d97758; }
-  .trip-pin-main { background: #3f86a4; }
-  .trip-pin-activity { background: #5b9c7a; }
-  .trip-pin-drive { background: #c29a4a; }
-  .leaflet-container {
-    font-family: inherit;
-  }
-  .leaflet-popup-content-wrapper,
-  .leaflet-popup-tip {
-    background: var(--card-softer);
-    color: var(--ink);
-  }
-  .leaflet-popup-content {
-    font-size: 13px;
-    line-height: 1.4;
-  }
-
-  @media (max-width: 860px) {
-    .map-shell {
-      grid-template-columns: 1fr;
-    }
-    .map-sidebar {
-      grid-template-rows: auto;
-    }
-    #trip-map {
-      height: 430px;
-    }
-    .route-timeline {
-      max-height: none;
-    }
-  }
-
   @media (max-width: 640px) {
     .container { padding: 0 16px 64px; }
     section { margin-bottom: 34px; }
@@ -666,13 +481,6 @@
       grid-template-columns: 1fr;
       gap: 6px;
       padding: 15px 16px;
-    }
-    #trip-map {
-      height: 380px;
-    }
-    .map-actions {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
     }
   }
 
@@ -838,8 +646,8 @@
     <div class="section-title">Trip Map</div>
     <div class="section-summary">Aug 9–19 overview • tap to enlarge</div>
   </div>
-  <a href="alaska-map.png" target="_blank" rel="noopener" style="display: block; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--line); background: var(--card); line-height: 0;">
-    <img src="alaska-map.png" alt="Alaska Vacation Map — Aug 9–19, showing daily locations from Juneau to Denali to Anchorage to Seward, with a Southeast Alaska inset for Juneau-area outings" style="display: block; width: 100%; height: auto;" loading="lazy"/>
+  <a href="alaska-map.jpg" target="_blank" rel="noopener" style="display: block; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--line); background: var(--card); line-height: 0;">
+    <img src="alaska-map.jpg" alt="Alaska Vacation Map — Aug 9–19, showing daily locations from Juneau to Denali to Anchorage to Seward, with a Southeast Alaska inset for Juneau-area outings" style="display: block; width: 100%; height: auto;" loading="lazy"/>
   </a>
 </section>
 
@@ -1462,7 +1270,7 @@
     document.getElementById('deadlines-summary').textContent = `${upcoming} upcoming${passed ? ' • ' + passed + ' passed' : ''}`;
   })();
 
-  // Map rendered as a static image — see <img src="alaska-map.png"> above.
+  // Map rendered as a static image — see <img src="alaska-map.jpg"> above.
 </script>
 </body>
 </html>
