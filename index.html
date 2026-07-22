@@ -80,14 +80,6 @@
     --hero-divider: rgba(255,255,255,0.22);
     --aurora-1: transparent;
     --aurora-2: transparent;
-
-    /* Trip map (SVG) */
-    --map-sea: #cfe3ea;
-    --map-land: #e8ead6;
-    --map-coast: #a9b98f;
-    --map-air: #7b5ea7;
-    --badge-bg: #1f6f8b;
-    --badge-fg: #ffffff;
   }
 
   [data-theme="dark"] {
@@ -130,14 +122,6 @@
     --hero-divider: rgba(234,243,255,0.12);
     --aurora-1: #2ecc8d;
     --aurora-2: #5e8bd8;
-
-    /* Trip map (SVG) */
-    --map-sea: #0b1d2e;
-    --map-land: #16323c;
-    --map-coast: #2f5866;
-    --map-air: #b1a0d8;
-    --badge-bg: #7cc9df;
-    --badge-fg: #06121d;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -660,162 +644,11 @@
 <section>
   <div class="section-header">
     <div class="section-title">Trip Map</div>
-    <div class="section-summary">Aug 9–19 route • stops numbered in trip order</div>
+    <div class="section-summary">Aug 9–19 overview • tap to enlarge</div>
   </div>
-  <div style="border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--line); line-height: 0;">
-  <svg id="tripmap" viewBox="0 0 1200 900" role="img" aria-label="Alaska route map, Aug 9 to 19: arrive Juneau, day trips to Auke Bay, Chichagof Island and Mendenhall Glacier, fly to Anchorage, train to Denali, tundra and Ruth Glacier outings, train back to Anchorage, Seward cruise day trip, depart Anchorage" style="display:block; width:100%; height:auto; background:var(--map-sea);">
-    <style>
-      #tripmap .land{fill:var(--map-land);stroke:var(--map-coast);stroke-width:1.5;stroke-linejoin:round}
-      #tripmap .rt{fill:none;stroke-linecap:round}
-      #tripmap .rt-on{stroke:var(--green);stroke-width:3}
-      #tripmap .rt-day{stroke:var(--green);stroke-width:2.5;stroke-dasharray:7 6}
-      #tripmap .rt-sea{stroke:var(--accent);stroke-width:2.5;stroke-dasharray:7 6}
-      #tripmap .rt-air{stroke:var(--map-air);stroke-width:2.5;stroke-dasharray:2 6}
-      #tripmap .dot{fill:var(--ink);stroke:var(--card);stroke-width:2}
-      #tripmap text{fill:var(--ink)}
-      #tripmap .halo{paint-order:stroke;stroke:var(--map-sea);stroke-width:3.5px;stroke-linejoin:round}
-      #tripmap .ttl{font-size:30px;font-weight:800}
-      #tripmap .sub{font-size:13.5px;font-weight:500;fill:var(--ink-soft)}
-      #tripmap .lbl{font-size:12.5px;font-weight:700}
-      #tripmap .lbl-sm{font-size:10.5px;font-weight:600;fill:var(--ink-soft)}
-      #tripmap .sea-lbl{font-size:15px;font-style:italic;fill:var(--muted);letter-spacing:.14em}
-      #tripmap .date{font-size:11.5px;font-weight:700}
-      #tripmap .badge{fill:var(--badge-bg)}
-      #tripmap .bnum{font-size:12px;font-weight:800;fill:var(--badge-fg);text-anchor:middle}
-      #tripmap .box{fill:var(--card);stroke:var(--line)}
-      #tripmap .box-ttl{font-size:12px;font-weight:800;letter-spacing:.12em;fill:var(--muted)}
-      #tripmap .key{font-size:12.5px}
-      #tripmap .pg{font-size:17px;fill:var(--green)}
-    </style>
-
-    <!-- Landmass -->
-    <path class="land" d="M170,235 C230,160 330,135 430,130 C530,125 600,140 645,165 C662,250 668,340 680,430 L692,500
-      C740,525 800,560 870,605 C950,655 1030,700 1100,738 L1125,752 L1132,724 C1060,675 980,625 905,580 C830,536 760,505 705,478
-      C685,490 660,505 640,508 C590,515 565,522 520,522 C495,530 478,545 462,585 C452,612 445,622 438,622 C420,612 405,585 402,560 C400,530 404,505 408,492 C400,482 392,480 384,492 C372,515 355,545 335,565 C290,605 235,635 165,660 C150,662 145,652 158,640 C175,610 168,575 150,545 C130,510 112,470 112,440 C112,410 130,395 145,388 C125,380 100,370 88,360 C82,352 86,344 100,340 C120,336 138,328 150,318 C160,290 162,262 170,235 Z"/>
-    <ellipse class="land" cx="115" cy="676" rx="8" ry="4"/>
-    <ellipse class="land" cx="86" cy="686" rx="6" ry="3"/>
-    <ellipse class="land" cx="58" cy="693" rx="5" ry="3"/>
-    <ellipse class="land" cx="330" cy="652" rx="22" ry="13"/>
-    <text class="sea-lbl" x="660" y="632">GULF OF ALASKA</text>
-
-    <!-- Title -->
-    <text class="ttl halo" x="34" y="74">Alaska Route Map</text>
-    <text class="sub halo" x="34" y="100">Aug 9–19 · Juneau → Denali → Anchorage → Seward</text>
-
-    <!-- Arrow markers -->
-    <defs>
-      <marker id="mArrG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--green)"/></marker>
-      <marker id="mArrB" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker>
-      <marker id="mArrP" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--map-air)"/></marker>
-    </defs>
-
-    <!-- Routes (drawn under boxes) -->
-    <path class="rt rt-on" d="M1185,655 C1090,625 990,598 905,578" marker-end="url(#mArrG)"/>
-    <text class="lbl-sm halo" x="1015" y="648" text-anchor="middle">Aug 9 · arrive from Atlanta</text>
-    <text class="pg" transform="translate(1080,632) scale(-1,1) rotate(12)">✈︎</text>
-    <path class="rt rt-on" d="M885,566 C740,505 560,468 428,462" marker-end="url(#mArrG)"/>
-    <text class="pg" transform="translate(742,506) scale(-1,1) rotate(-4)">✈︎</text>
-    <path class="rt rt-on" d="M402,455 C390,402 380,350 371,300" marker-end="url(#mArrG)"/>
-    <path class="rt rt-on" d="M383,297 C392,348 403,400 414,452" marker-end="url(#mArrG)"/>
-    <path class="rt rt-on" d="M418,472 C470,560 545,655 600,760"/>
-    <text class="pg" transform="translate(540,612) rotate(40)">✈︎</text>
-    <text class="lbl-sm halo" x="520" y="662" text-anchor="end">Aug 19 · overnight to Atlanta</text>
-    <path class="rt rt-sea" d="M406,478 C418,515 432,548 442,571" marker-end="url(#mArrB)"/>
-    <path class="rt rt-sea" d="M452,568 C444,540 431,510 417,480" marker-end="url(#mArrB)"/>
-    <path class="rt rt-day" d="M366,290 C348,286 334,284 320,284" marker-end="url(#mArrG)"/>
-    <path class="rt rt-air" d="M370,302 C348,325 322,340 308,348" marker-end="url(#mArrP)"/>
-
-    <!-- Glyphs -->
-    <g transform="translate(424,348)">
-      <rect x="-8" y="-9" width="16" height="14" rx="3" fill="var(--green)"/>
-      <rect x="-5" y="-6" width="10" height="4" rx="1" fill="var(--card)"/>
-      <circle cx="-4" cy="7" r="2.2" fill="var(--green)"/><circle cx="4" cy="7" r="2.2" fill="var(--green)"/>
-    </g>
-    <g transform="translate(472,622)">
-      <path d="M-10,0 L10,0 L6,6 L-6,6 Z" fill="var(--accent)"/>
-      <rect x="-4" y="-6" width="8" height="5" rx="1" fill="var(--accent)"/>
-      <rect x="-1" y="-10" width="2" height="4" fill="var(--accent)"/>
-    </g>
-    <g transform="translate(295,352)">
-      <path d="M-16,10 L-6,-9 L-1,-2 L7,-12 L18,10 Z" fill="var(--map-coast)"/>
-      <path d="M-6,-9 L-2,-2 L-10,0 Z" fill="var(--snow-tint)"/>
-      <path d="M7,-12 L12,-3 L2,-2 Z" fill="var(--snow-tint)"/>
-    </g>
-    <text class="lbl-sm halo" x="295" y="380" text-anchor="middle">Ruth Glacier</text>
-
-    <!-- Cities -->
-    <circle class="dot" cx="412" cy="462" r="4.5"/><text class="lbl halo" x="398" y="448" text-anchor="end">Anchorage</text>
-    <circle class="dot" cx="376" cy="293" r="4.5"/><text class="lbl halo" x="390" y="285">Denali</text>
-    <circle class="dot" cx="446" cy="581" r="4"/><text class="lbl halo" x="459" y="585">Seward</text>
-    <circle class="dot" cx="890" cy="572" r="4.5"/><text class="lbl halo" x="898" y="560">Juneau</text>
-
-    <!-- Numbered stops (main) -->
-    <g><circle class="badge" cx="905" cy="600" r="13"/><text class="bnum" x="905" y="604.5">1</text><text class="date halo" x="923" y="604">Aug 9–13</text></g>
-    <g><circle class="badge" cx="652" cy="484" r="13"/><text class="bnum" x="652" y="488.5">5</text><text class="date halo" x="670" y="488">Aug 13</text></g>
-    <g><circle class="badge" cx="420" cy="315" r="13"/><text class="bnum" x="420" y="319.5">6</text><text class="date halo" x="438" y="319">Aug 14</text></g>
-    <g><circle class="badge" cx="300" cy="276" r="13"/><text class="bnum" x="300" y="280.5">7</text><text class="date halo" x="284" y="280" text-anchor="end">Aug 15</text></g>
-    <g><circle class="badge" cx="285" cy="392" r="13"/><text class="bnum" x="285" y="396.5">8</text><text class="date halo" x="269" y="396" text-anchor="end">Aug 16</text></g>
-    <g><circle class="badge" cx="432" cy="378" r="13"/><text class="bnum" x="432" y="382.5">9</text><text class="date halo" x="450" y="382">Aug 17</text></g>
-    <g><circle class="badge" cx="478" cy="536" r="13"/><text class="bnum" x="478" y="540.5">10</text><text class="date halo" x="496" y="540">Aug 18</text></g>
-    <g><circle class="badge" cx="362" cy="478" r="13"/><text class="bnum" x="362" y="482.5">11</text><text class="date halo" x="346" y="482" text-anchor="end">Aug 19</text></g>
-
-    <!-- Juneau inset -->
-    <g>
-      <rect class="box" x="740" y="50" width="430" height="280" rx="12"/>
-      <text class="box-ttl" x="760" y="78">JUNEAU AREA · AUG 9–12</text>
-      <rect x="752" y="90" width="406" height="228" rx="8" fill="var(--map-sea)"/>
-      <path class="land" d="M950,92 C990,135 1040,175 1110,212 C1130,222 1148,230 1158,236 L1158,92 Z"/>
-      <ellipse class="land" cx="1062" cy="262" rx="38" ry="18" transform="rotate(-22 1062 262)"/>
-      <ellipse class="land" cx="948" cy="275" rx="44" ry="24" transform="rotate(-18 948 275)"/>
-      <ellipse class="land" cx="818" cy="228" rx="58" ry="38" transform="rotate(-14 818 228)"/>
-      <text class="lbl-sm halo" x="800" y="292" text-anchor="middle" font-style="italic">Chichagof Island</text>
-      <path class="rt rt-day" d="M994,144 C966,136 940,138 920,148" marker-end="url(#mArrG)"/>
-      <path class="rt rt-day" d="M992,158 C932,186 886,202 858,210" marker-end="url(#mArrG)"/>
-      <path class="rt rt-air" d="M1090,184 C1080,162 1070,146 1064,134" marker-end="url(#mArrP)"/>
-      <g transform="translate(1060,122)">
-        <path d="M-12,8 L-4,-7 L0,-1 L5,-9 L14,8 Z" fill="var(--map-coast)"/>
-        <path d="M-4,-7 L-1,-1 L-7,0 Z" fill="var(--snow-tint)"/>
-      </g>
-      <text class="lbl-sm halo" x="1040" y="108" text-anchor="end">Mendenhall Glacier</text>
-      <circle class="dot" cx="1096" cy="192" r="4"/><text class="lbl halo" x="1090" y="214" text-anchor="middle">Juneau</text>
-      <circle class="dot" cx="1002" cy="148" r="3.5"/><text class="lbl-sm halo" x="995" y="130" text-anchor="middle">Auke Bay / Statter Harbor</text>
-      <circle class="dot" cx="848" cy="212" r="3.5"/><text class="lbl-sm halo" x="845" y="240" text-anchor="middle">Waterfall Creek</text>
-      <g><circle class="badge" cx="1122" cy="170" r="12"/><text class="bnum" x="1122" y="174.5">1</text><text class="date halo" x="1122" y="196" text-anchor="middle">Aug 9</text></g>
-      <g><circle class="badge" cx="900" cy="152" r="12"/><text class="bnum" x="900" y="156.5">2</text><text class="date halo" x="900" y="176" text-anchor="middle">Aug 10</text></g>
-      <g><circle class="badge" cx="826" cy="190" r="12"/><text class="bnum" x="826" y="194.5">3</text><text class="date halo" x="810" y="194" text-anchor="end">Aug 11</text></g>
-      <g><circle class="badge" cx="1092" cy="148" r="12"/><text class="bnum" x="1092" y="152.5">4</text><text class="date halo" x="1108" y="152">Aug 12</text></g>
-    </g>
-
-    <!-- Legend -->
-    <g>
-      <rect class="box" x="30" y="680" width="300" height="185" rx="12"/>
-      <text class="box-ttl" x="50" y="708">LEGEND</text>
-      <path class="rt rt-on" d="M50,732 L104,732" marker-end="url(#mArrG)"/><text class="key" x="122" y="736">Overnight travel (trip order)</text>
-      <path class="rt rt-day" d="M50,758 L110,758"/><text class="key" x="122" y="762">Day excursion</text>
-      <path class="rt rt-sea" d="M50,784 L110,784"/><text class="key" x="122" y="788">Kenai Fjords cruise day</text>
-      <path class="rt rt-air" d="M50,810 L110,810"/><text class="key" x="122" y="814">Flightseeing / helicopter</text>
-      <circle class="badge" cx="61" cy="836" r="11"/><text class="bnum" x="61" y="840.5">5</text><text class="key" x="122" y="840">Stop number · date beside</text>
-    </g>
-
-    <!-- Day-by-day key -->
-    <g>
-      <rect class="box" x="360" y="680" width="810" height="185" rx="12"/>
-      <text class="box-ttl" x="380" y="708">DAY BY DAY</text>
-      <g><circle class="badge" cx="392" cy="729" r="10"/><text class="bnum" x="392" y="733">1</text><text class="key" x="412" y="733">Aug 9 — Arrive Juneau (ATL → SEA → JNU)</text></g>
-      <g><circle class="badge" cx="392" cy="752" r="10"/><text class="bnum" x="392" y="756">2</text><text class="key" x="412" y="756">Aug 10 — Whale watching, Auke Bay</text></g>
-      <g><circle class="badge" cx="392" cy="775" r="10"/><text class="bnum" x="392" y="779">3</text><text class="key" x="412" y="779">Aug 11 — Bear viewing, Waterfall Creek</text></g>
-      <g><circle class="badge" cx="392" cy="798" r="10"/><text class="bnum" x="392" y="802">4</text><text class="key" x="412" y="802">Aug 12 — Dog sledding, Mendenhall Glacier</text></g>
-      <g><circle class="badge" cx="392" cy="821" r="10"/><text class="bnum" x="392" y="825">5</text><text class="key" x="412" y="825">Aug 13 — Fly Juneau → Anchorage (evening)</text></g>
-      <g><circle class="badge" cx="392" cy="844" r="10"/><text class="bnum" x="392" y="848">6</text><text class="key" x="412" y="848">Aug 14 — Alaska Railroad to Denali</text></g>
-      <g><circle class="badge" cx="790" cy="729" r="10"/><text class="bnum" x="790" y="733">7</text><text class="key" x="810" y="733">Aug 15 — Tundra Wilderness Tour, Mile 43</text></g>
-      <g><circle class="badge" cx="790" cy="752" r="10"/><text class="bnum" x="790" y="756">8</text><text class="key" x="810" y="756">Aug 16 — Flightseeing + Ruth Glacier landing</text></g>
-      <g><circle class="badge" cx="790" cy="775" r="10"/><text class="bnum" x="790" y="779">9</text><text class="key" x="810" y="779">Aug 17 — Alaska Railroad to Anchorage</text></g>
-      <g><circle class="badge" cx="790" cy="798" r="10"/><text class="bnum" x="790" y="802">10</text><text class="key" x="810" y="802">Aug 18 — Kenai Fjords cruise (Seward)</text></g>
-      <g><circle class="badge" cx="790" cy="821" r="10"/><text class="bnum" x="790" y="825">11</text><text class="key" x="810" y="825">Aug 19 — Anchorage · overnight flight home</text></g>
-    </g>
-  </svg>
-  </div>
-  <div style="margin-top: 8px; font-size: 12.5px; color: var(--muted);">Prefer the hand-illustrated version? <a href="alaska-map.jpg" target="_blank" rel="noopener" style="color: var(--accent);">Open the painted map</a>.</div>
+  <a href="alaska-map.jpg" target="_blank" rel="noopener" style="display: block; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--line); background: var(--card); line-height: 0;">
+    <img src="alaska-map.jpg" alt="Alaska Vacation Map — Aug 9–19, showing daily locations from Juneau to Denali to Anchorage to Seward, with a Southeast Alaska inset for Juneau-area outings" style="display: block; width: 100%; height: auto;" loading="lazy"/>
+  </a>
 </section>
 
 <section>
